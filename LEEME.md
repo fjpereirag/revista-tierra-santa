@@ -67,3 +67,16 @@ Copia de antes en `_copias/v3-antes-tarjetas-27nov.tgz`. Vídeo: `_capturas/v4/s
   `img/equipo/`), botones «Haz una donación» y «Suscripciones», y sección propia «Contacta con nosotros» con su
   formulario, dirección, emails de Redacción y Suscripciones, teléfono, Ley 49/2002, NIE y Depósito legal/ISSN.
   El formulario abre el correo del visitante dirigido a direccion@revistatierrasanta.com (aquí no hay servidor).
+
+## Panel de actualización (27/11/2026, noche) — para mantener la portada sin tocar código
+- Doble clic en `ACTUALIZAR-WEB.bat` → se abre el panel en el navegador (http://localhost:4361/panel/). No cerrar la ventana negra.
+- 1 · «Buscar novedades»: lee en revistatierrasanta.com (su API de WordPress) las noticias y revistas que faltan y las añade
+  con su foto/portada. Si su web no deja leerla, se añaden a mano con los formularios.
+- 2 · Noticias: añadir, cambiar o quitar. Se ordenan por fecha: 2 grandes, 4 pequeñas, 8 en el teletipo.
+- 3 · Revistas: añadir el número nuevo (portada, meses, año); el contador de la hemeroteca se actualiza solo.
+- 4 · Publicar: «Preparar archivos para subir» deja en `para-subir/` SOLO lo que ha cambiado, con sus carpetas.
+  Se sube todo lo de dentro a `public_html` del alojamiento y a GitHub.
+- «Deshacer el último cambio»: cada cambio guarda antes una copia en `copias/`.
+- Cómo funciona: `datos/noticias.json` = las noticias; `herramientas/portada.py` rehace en `index.html` solo las zonas de
+  noticias, teletipo, «Lo último» y el contador; `herramientas/panel.py` = el servidor local del panel; `panel/index.html` = la pantalla.
+- No hace falta subir a la web ni a GitHub las carpetas `copias/` ni `para-subir/`.

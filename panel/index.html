@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel · Revista Tierra Santa</title>
+<link rel="icon" href="../img/marca/cruz.png">
+<link rel="stylesheet" href="../css/fuentes.css">
+<style>
+:root { --tinta:#142131; --pizarra:#293945; --crema:#f5f1e5; --papel:#faf9f1; --oro:#a68563; --rojo:#c40000; --verde:#2e7d4f; --linea:rgba(20,33,49,.12); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--crema); color: var(--tinta); font: 17px/1.55 'Montserrat', system-ui, sans-serif; }
+header { background: var(--pizarra); color: #fff; padding: 18px 24px; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; }
+header h1 { margin: 0; font: 300 26px/1.2 'Taviraj', Georgia, serif; display: flex; align-items: center; gap: 12px; }
+header h1 img { width: 34px; height: 34px; filter: brightness(0) invert(1); }
+.cab-botones { display: flex; flex-wrap: wrap; gap: 10px; }
+main { max-width: 1040px; margin: 0 auto; padding: 26px 20px 80px; display: grid; gap: 26px; }
+section { background: #fff; border-radius: 18px; padding: 26px; box-shadow: 0 20px 40px -32px rgba(20,33,49,.5); }
+h2 { margin: 0 0 6px; font: 400 28px/1.2 'Taviraj', Georgia, serif; }
+h2 small { display: block; font: 500 15px/1.5 'Montserrat', sans-serif; color: #5b6670; margin-top: 4px; }
+.paso { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--oro); color: #fff; font: 700 17px 'Montserrat'; margin-right: 10px; vertical-align: 4px; }
+button, .boton { font: 600 16px 'Montserrat', sans-serif; border: 0; border-radius: 999px; padding: 13px 22px; cursor: pointer; background: var(--pizarra); color: #fff; display: inline-flex; gap: 8px; align-items: center; text-decoration: none; }
+button:hover, .boton:hover { background: var(--tinta); }
+button:disabled { opacity: .55; cursor: wait; }
+.grande { font-size: 18px; padding: 17px 30px; }
+.claro { background: var(--crema); color: var(--tinta); } .claro:hover { background: #ebe3cd; }
+.borde { background: transparent; color: var(--tinta); border: 1.5px solid var(--tinta); } .borde:hover { background: var(--tinta); color: #fff; }
+.rojo { background: #fff; color: var(--rojo); border: 1.5px solid #e9b8b8; } .rojo:hover { background: var(--rojo); color: #fff; }
+header .claro { background: rgba(255,255,255,.12); color: #fff; } header .claro:hover { background: rgba(255,255,255,.22); }
+.aviso-subir { background: #fff4d6; color: #6b4e00; border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; }
+.aviso-subir.ok { background: #e3f3e8; color: var(--verde); }
+.fila { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+.lista { display: grid; gap: 12px; margin-top: 18px; }
+.item { display: grid; grid-template-columns: 96px 1fr auto; gap: 16px; align-items: center; padding: 12px; border: 1px solid var(--linea); border-radius: 14px; background: var(--papel); }
+.item img { width: 96px; height: 70px; object-fit: cover; border-radius: 10px; background: #ddd; }
+.item.revista img { width: 70px; height: 96px; }
+.item.revista { grid-template-columns: 70px 1fr auto; }
+.item h3 { margin: 0; font-size: 16px; line-height: 1.35; }
+.item p { margin: 2px 0 0; font-size: 14px; color: #5b6670; }
+.etiqueta { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 2px 9px; border-radius: 999px; background: var(--crema); color: var(--oro); margin-right: 6px; }
+.etiqueta.grande-e { background: var(--pizarra); color: #fff; }
+.item .acciones { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.item .acciones button { padding: 9px 16px; font-size: 14px; }
+.nueva { border: 2px dashed var(--oro); background: #fffdf6; }
+form { display: grid; gap: 14px; margin-top: 18px; padding: 20px; border-radius: 14px; background: var(--papel); border: 1px solid var(--linea); }
+form[hidden] { display: none; }
+label { display: grid; gap: 6px; font-weight: 600; font-size: 15px; }
+label small { font-weight: 400; color: #5b6670; }
+input, textarea, select { font: 400 16px 'Montserrat', sans-serif; padding: 12px 14px; border: 1.5px solid rgba(20,33,49,.25); border-radius: 12px; background: #fff; color: var(--tinta); width: 100%; }
+input:focus, textarea:focus, select:focus { outline: 3px solid rgba(166,133,99,.35); border-color: var(--oro); }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.vista { display: flex; gap: 14px; align-items: center; }
+.vista img { max-width: 220px; max-height: 160px; border-radius: 10px; box-shadow: 0 8px 20px -10px rgba(0,0,0,.4); }
+.nota { font-size: 14.5px; color: #5b6670; margin: 6px 0 0; }
+.cuadro { background: var(--crema); border-radius: 14px; padding: 16px 18px; margin-top: 16px; font-size: 15.5px; }
+.cuadro ol { margin: 6px 0 0; padding-left: 22px; } .cuadro li { margin: 6px 0; }
+code { background: #fff; padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+#mensaje { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; transition: .35s; background: var(--tinta); color: #fff; padding: 15px 24px; border-radius: 14px; font-weight: 600; max-width: min(92vw, 620px); z-index: 20; box-shadow: 0 20px 40px -15px rgba(0,0,0,.5); }
+#mensaje.ver { opacity: 1; transform: translate(-50%, 0); }
+#mensaje.error { background: #9b1c1c; } #mensaje.bien { background: var(--verde); }
+.vacio { color: #5b6670; font-style: italic; margin: 14px 0 0; }
+@media (max-width: 640px) { .item { grid-template-columns: 70px 1fr; } .item .acciones { grid-column: 1 / -1; justify-content: flex-start; } .dos { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1><img src="../img/marca/cruz.png" alt="">Panel de la Revista Tierra Santa</h1>
+  <div class="cab-botones">
+    <span class="aviso-subir" id="pendientes">…</span>
+    <a class="boton claro" href="/index.html" target="_blank">Ver la web ↗</a>
+    <button class="claro" id="deshacer" title="Vuelve a como estaba antes del último cambio">↶ Deshacer el último cambio</button>
+  </div>
+</header>
+
+<main>
+  <!-- 1 · NOVEDADES AUTOMÁTICAS -->
+  <section>
+    <h2><span class="paso">1</span>Buscar novedades<small>Mira en revistatierrasanta.com si hay noticias o revistas nuevas que aún no están en la portada.</small></h2>
+    <div class="fila"><button class="grande" id="buscar">🔍 Buscar novedades en la web de la revista</button></div>
+    <div id="novedades"></div>
+  </section>
+
+  <!-- 2 · NOTICIAS -->
+  <section>
+    <h2><span class="paso">2</span>Noticias de la portada<small>Las 2 más recientes salen en grande, las 4 siguientes en pequeño y las 8 primeras pasan por el teletipo «Última hora». Se ordenan solas por fecha.</small></h2>
+    <div class="fila"><button class="borde" id="nueva-noticia">＋ Añadir una noticia a mano</button></div>
+    <form id="f-noticia" hidden>
+      <input type="hidden" name="url_original">
+      <label>Enlace de la noticia en su web <small>Cópialo de la barra del navegador (empieza por https://revistatierrasanta.com/…)</small><input name="url" required placeholder="https://revistatierrasanta.com/..."></label>
+      <label>Título<input name="titulo" required></label>
+      <div class="dos">
+        <label>Fecha<input type="date" name="fecha" required></label>
+        <label>Foto <small>JPG o PNG desde tu ordenador</small><input type="file" name="foto" accept="image/*"></label>
+      </div>
+      <label>Entradilla <small>Una frase corta que sale debajo del título (solo se ve si la noticia está entre las 2 grandes)</small><textarea name="entradilla" rows="2"></textarea></label>
+      <div class="vista" id="vista-noticia"></div>
+      <div class="fila"><button type="submit" class="grande">💾 Guardar la noticia</button><button type="button" class="claro" data-cancelar>Cancelar</button></div>
+    </form>
+    <div class="lista" id="lista-noticias"></div>
+  </section>
+
+  <!-- 3 · REVISTAS -->
+  <section>
+    <h2><span class="paso">3</span>Hemeroteca: revistas<small id="cuenta-revistas">Cada revista nueva se pone la primera en la estantería.</small></h2>
+    <div class="fila"><button class="borde" id="nueva-revista">＋ Añadir una revista a mano</button></div>
+    <form id="f-revista" hidden>
+      <div class="dos">
+        <label>Número de la revista<input type="number" name="numero" required min="1"></label>
+        <label>Portada <small>la imagen de la portada (JPG o PNG)</small><input type="file" name="portada" accept="image/*"></label>
+      </div>
+      <div class="dos">
+        <label>Meses<select name="meses">
+          <option>Enero – Febrero</option><option>Marzo – Abril</option><option>Mayo – Junio</option>
+          <option>Julio – Agosto</option><option>Septiembre – Octubre</option><option>Noviembre – Diciembre</option></select></label>
+        <label>Año<input type="number" name="anio" required min="1921" max="2100"></label>
+      </div>
+      <label>Dirección en su web <small>normalmente no hay que tocarla</small><input name="slug"></label>
+      <div class="vista" id="vista-revista"></div>
+      <div class="fila"><button type="submit" class="grande">💾 Guardar la revista</button><button type="button" class="claro" data-cancelar>Cancelar</button></div>
+    </form>
+    <div class="lista" id="lista-revistas"></div>
+  </section>
+
+  <!-- 4 · PUBLICAR -->
+  <section>
+    <h2><span class="paso">4</span>Publicar los cambios<small>Cuando hayas terminado, prepara los archivos y súbelos a la web y a GitHub.</small></h2>
+    <div class="fila"><button class="grande" id="preparar">📦 Preparar archivos para subir</button><button class="claro" id="abrir">📂 Abrir la carpeta «para-subir»</button></div>
+    <div id="resultado-subir"></div>
+    <div class="cuadro">
+      <strong>Cómo subirlos (siempre igual):</strong>
+      <ol>
+        <li>Pulsa <b>Preparar archivos para subir</b> y después <b>Abrir la carpeta</b>. Dentro están solo los archivos que han cambiado, ya en sus carpetas.</li>
+        <li><b>Web de la revista:</b> en el gestor de archivos del alojamiento, entra en <code>public_html</code> y sube <b>todo lo que hay dentro</b> de «para-subir» (acepta sustituir los archivos). Después vacía la caché de la web.</li>
+        <li><b>GitHub:</b> en tu repositorio pulsa <b>Agregar archivo → Subir archivos</b>, arrastra <b>todo lo que hay dentro</b> de «para-subir» y pulsa <b>Confirmar cambios</b>.</li>
+        <li>Abre la web en una ventana de incógnito y comprueba que se ve lo nuevo.</li>
+      </ol>
+    </div>
+  </section>
+</main>
+<div id="mensaje" role="status" aria-live="polite"></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const MESES = ['Enero – Febrero', 'Marzo – Abril', 'Mayo – Junio', 'Julio – Agosto', 'Septiembre – Octubre', 'Noviembre – Diciembre'];
+const MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+let estado = null, tMensaje;
+
+function aviso(texto, tipo = '') {
+  const m = $('#mensaje'); m.textContent = texto; m.className = 'ver ' + tipo;
+  clearTimeout(tMensaje); tMensaje = setTimeout(() => m.className = '', tipo === 'error' ? 9000 : 4500);
+}
+async function api(ruta, datos) {
+  const r = await fetch(ruta, datos === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+  const j = await r.json().catch(() => ({ ok: false, error: 'El panel no responde. ¿Has cerrado la ventana negra?' }));
+  if (!j.ok) throw new Error(j.error || 'Algo ha fallado');
+  return j.resultado;
+}
+async function ocupado(boton, fn) {
+  const t = boton.innerHTML; boton.disabled = true; boton.innerHTML = '⏳ Un momento…';
+  try { return await fn(); } catch (e) { aviso(e.message, 'error'); } finally { boton.disabled = false; boton.innerHTML = t; }
+}
+const fechaBonita = (iso) => { const [a, m, d] = iso.split('-'); return `${+d} de ${MES[+m - 1]} de ${a}`; };
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ---------- imágenes: se reducen y convierten aquí, en el navegador
+function cargaImagen(src) { return new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => mal(new Error('No se puede leer esa imagen')); i.src = src; }); }
+const deArchivo = (f) => new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(f); });
+function reduce(img, anchoMax, tipo, calidad) {
+  const k = Math.min(1, anchoMax / img.naturalWidth), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+  const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+  return { datos: c.toDataURL(tipo, calidad), ancho: w, alto: h, lienzo: c };
+}
+function colorLomo(lienzo) {   // color medio del borde izquierdo de la portada y si es oscuro
+  const g = lienzo.getContext('2d'), d = g.getImageData(0, 0, Math.max(1, Math.round(lienzo.width * .12)), lienzo.height).data;
+  let r = 0, v = 0, a = 0, n = 0; for (let i = 0; i < d.length; i += 16) { r += d[i]; v += d[i + 1]; a += d[i + 2]; n++; }
+  r = Math.round(r / n); v = Math.round(v / n); a = Math.round(a / n);
+  const hex = '#' + [r, v, a].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return { color: hex, claro: (0.299 * r + 0.587 * v + 0.114 * a) < 150 };
+}
+async function fotoNoticia(src) { const r = reduce(await cargaImagen(src), 1400, 'image/jpeg', 0.84); return { foto: r.datos, ancho: r.ancho, alto: r.alto }; }
+async function fotoPortada(src) { const r = reduce(await cargaImagen(src), 460, 'image/webp', 0.8); const c = colorLomo(r.lienzo); return { portada: r.datos, proporcion: (r.ancho / r.alto).toFixed(3), ...c }; }
+const viaPanel = (url) => '/api/imagen?url=' + encodeURIComponent(url);
+
+// ---------- estado
+async function refresca() {
+  estado = await api('/api/estado');
+  const p = $('#pendientes');
+  p.textContent = estado.pendientes ? `⚠ ${estado.pendientes} archivo(s) cambiados: prepáralos para subir (paso 4)` : '✔ Nada pendiente de preparar';
+  p.className = 'aviso-subir' + (estado.pendientes ? '' : ' ok');
+  $('#deshacer').disabled = !estado.copias;
+  const conFoto = estado.noticias.filter((n) => n.foto);
+  $('#lista-noticias').innerHTML = estado.noticias.map((n, i) => {
+    const pos = conFoto.indexOf(n);
+    const et = pos > -1 && pos < 2 ? '<span class="etiqueta grande-e">Grande</span>' : pos > -1 && pos < 6 ? '<span class="etiqueta">Pequeña</span>' : '';
+    const tel = i < 8 ? '<span class="etiqueta">Teletipo</span>' : '';
+    const fuera = !et && !tel ? '<span class="etiqueta">Ya no se ve</span>' : '';
+    return `<div class="item">${n.foto ? `<img src="../img/noticias/${esc(n.foto)}" alt="">` : '<img alt="">'}
+      <div><p>${et}${tel}${fuera}</p><h3>${esc(n.titulo)}</h3><p>${fechaBonita(n.fecha)}</p></div>
+      <div class="acciones"><button class="claro" data-editar="${i}">✎ Cambiar</button><button class="rojo" data-quitar="${i}">Quitar</button></div></div>`;
+  }).join('');
+  $('#cuenta-revistas').textContent = `Hay ${estado.total_revistas} revistas. Cada revista nueva se pone la primera en la estantería.`;
+  $('#lista-revistas').innerHTML = estado.revistas.map((r, i) => `<div class="item revista"><img src="../${esc(r.i)}" alt="">
+      <div><h3>Revista nº ${r.l}</h3><p>${esc(r.p || '')}</p></div>
+      <div class="acciones">${i === 0 ? `<button class="rojo" data-quitar-revista="${r.n}">Quitar</button>` : ''}</div></div>`).join('');
+}
+
+// ---------- 1 · novedades
+$('#buscar').addEventListener('click', (e) => ocupado(e.currentTarget, async () => {
+  const caja = $('#novedades');
+  let nov;
+  try { nov = await api('/api/novedades'); }
+  catch (err) {
+    caja.innerHTML = `<p class="cuadro">No he podido leer la web de la revista (${esc(err.message)}).<br>No pasa nada: añade las noticias y revistas a mano con los botones de abajo.</p>`;
+    return;
+  }
+  if (!nov.noticias.length && !nov.revistas.length) { caja.innerHTML = '<p class="vacio">No hay nada nuevo: la portada ya está al día. ✔</p>'; return; }
+  caja.innerHTML = '<div class="lista">' +
+    nov.revistas.map((r, i) => `<div class="item revista nueva"><img src="${r.foto_url ? viaPanel(r.foto_url) : ''}" alt="">
+      <div><p><span class="etiqueta grande-e">Revista nueva</span></p><h3>${esc(r.titulo)}</h3><p>Publicada en su web el ${fechaBonita(r.fecha)}</p></div>
+      <div class="acciones"><button data-anadir-revista="${i}">＋ Añadir a la hemeroteca</button></div></div>`).join('') +
+    nov.noticias.map((n, i) => `<div class="item nueva"><img src="${n.foto_url ? viaPanel(n.foto_url) : ''}" alt="">
+      <div><p><span class="etiqueta grande-e">Noticia nueva</span></p><h3>${esc(n.titulo)}</h3><p>${fechaBonita(n.fecha)}</p></div>
+      <div class="acciones"><button data-anadir-noticia="${i}">＋ Añadir a la portada</button></div></div>`).join('') + '</div>';
+  caja.onclick = (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.anadirNoticia !== undefined) {
+      const n = nov.noticias[+b.dataset.anadirNoticia];
+      abreNoticia({ url: n.url, titulo: n.titulo, fecha: n.fecha, entradilla: n.entradilla }, n.foto_url ? viaPanel(n.foto_url) : '');
+    }
+    if (b.dataset.anadirRevista !== undefined) {
+      const r = nov.revistas[+b.dataset.anadirRevista];
+      abreRevista({ numero: r.numero, slug: r.slug }, r.foto_url ? viaPanel(r.foto_url) : '');
+    }
+  };
+}));
+
+// ---------- 2 · noticias
+let fotoNot = null;   // {foto, ancho, alto} preparada para guardar
+const fN = $('#f-noticia');
+function abreNoticia(n = {}, fotoSrc = '') {
+  fN.reset(); fotoNot = null; $('#vista-noticia').innerHTML = '';
+  fN.url_original.value = n.url_original || ''; fN.url.value = n.url || ''; fN.titulo.value = n.titulo || '';
+  fN.fecha.value = n.fecha || new Date().toISOString().slice(0, 10); fN.entradilla.value = n.entradilla || '';
+  fN.hidden = false; fN.scrollIntoView({ behavior: 'smooth', block: 'center' }); fN.titulo.focus({ preventScroll: true });
+  if (fotoSrc) preparaFotoNoticia(fotoSrc);
+  else if (n.foto) $('#vista-noticia').innerHTML = `<img src="../img/noticias/${esc(n.foto)}" alt=""><p class="nota">Foto actual. Elige otra solo si quieres cambiarla.</p>`;
+}
+async function preparaFotoNoticia(src) {
+  try { fotoNot = await fotoNoticia(src); $('#vista-noticia').innerHTML = `<img src="${fotoNot.foto}" alt=""><p class="nota">✔ Foto lista</p>`; }
+  catch (e) { $('#vista-noticia').innerHTML = '<p class="nota">⚠ No he podido traer la foto. Descárgala de la noticia (clic derecho → Guardar imagen como) y elígela arriba en «Foto».</p>'; }
+}
+$('#nueva-noticia').addEventListener('click', () => abreNoticia());
+fN.foto.addEventListener('change', async () => { if (fN.foto.files[0]) preparaFotoNoticia(await deArchivo(fN.foto.files[0])); });
+fN.addEventListener('submit', (ev) => { ev.preventDefault(); ocupado($('button[type=submit]', fN), async () => {
+  const d = { url_original: fN.url_original.value, url: fN.url.value.trim(), titulo: fN.titulo.value, fecha: fN.fecha.value, entradilla: fN.entradilla.value, ...(fotoNot || {}) };
+  await api('/api/noticia', d); fN.hidden = true; await refresca(); aviso('✔ Noticia guardada. La portada ya está actualizada.', 'bien');
+}); });
+$('#lista-noticias').addEventListener('click', (ev) => {
+  const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.editar !== undefined) { const n = estado.noticias[+b.dataset.editar]; abreNoticia({ ...n, url_original: n.url }); }
+  if (b.dataset.quitar !== undefined) {
+    const n = estado.noticias[+b.dataset.quitar];
+    if (!confirm(`¿Quitar de la portada «${n.titulo}»?\n(Se puede deshacer)`)) return;
+    ocupado(b, async () => { await api('/api/noticia/quitar', { url: n.url }); await refresca(); aviso('Noticia quitada.', 'bien'); });
+  }
+});
+
+// ---------- 3 · revistas
+let fotoRev = null;
+const fR = $('#f-revista');
+function siguientesMeses() {   // propone los meses y el año del número siguiente al último
+  const p = (estado.revistas[0] || {}).p || ''; const a = (p.match(/\d{4}/) || [new Date().getFullYear()])[0];
+  const i = MESES.findIndex((m) => p.startsWith(m));
+  if (i < 0) return { meses: MESES[Math.floor(new Date().getMonth() / 2)], anio: new Date().getFullYear() };
+  return i === 5 ? { meses: MESES[0], anio: +a + 1 } : { meses: MESES[i + 1], anio: +a };
+}
+function abreRevista(r = {}, fotoSrc = '') {
+  fR.reset(); fotoRev = null; $('#vista-revista').innerHTML = '';
+  const s = siguientesMeses(); const num = r.numero || ((estado.revistas[0] || { n: 0 }).n + 1);
+  fR.numero.value = num; fR.meses.value = s.meses; fR.anio.value = s.anio; fR.slug.value = r.slug || `revista-no-${num}`;
+  fR.hidden = false; fR.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (fotoSrc) preparaPortada(fotoSrc);
+}
+async function preparaPortada(src) {
+  try { fotoRev = await fotoPortada(src); $('#vista-revista').innerHTML = `<img src="${fotoRev.portada}" alt=""><p class="nota">✔ Portada lista</p>`; }
+  catch (e) { $('#vista-revista').innerHTML = '<p class="nota">⚠ No he podido traer la portada. Descárgala de su web y elígela arriba en «Portada».</p>'; }
+}
+fR.numero.addEventListener('input', () => { fR.slug.value = `revista-no-${fR.numero.value}`; });
+$('#nueva-revista').addEventListener('click', () => abreRevista());
+fR.portada.addEventListener('change', async () => { if (fR.portada.files[0]) preparaPortada(await deArchivo(fR.portada.files[0])); });
+fR.addEventListener('submit', (ev) => { ev.preventDefault(); ocupado($('button[type=submit]', fR), async () => {
+  const d = { numero: fR.numero.value, meses: fR.meses.value, anio: fR.anio.value, slug: fR.slug.value.trim(), ...(fotoRev || {}) };
+  await api('/api/revista', d); fR.hidden = true; await refresca(); aviso(`✔ Revista nº ${d.numero} añadida a la hemeroteca.`, 'bien');
+}); });
+$('#lista-revistas').addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-quitar-revista]'); if (!b) return;
+  if (!confirm(`¿Quitar la revista nº ${b.dataset.quitarRevista} de la hemeroteca?\n(Se puede deshacer)`)) return;
+  ocupado(b, async () => { await api('/api/revista/quitar', { numero: b.dataset.quitarRevista }); await refresca(); aviso('Revista quitada.', 'bien'); });
+});
+document.querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', () => { b.closest('form').hidden = true; }));
+
+// ---------- deshacer y publicar
+$('#deshacer').addEventListener('click', (e) => {
+  if (!confirm('¿Deshacer el último cambio?')) return;
+  ocupado(e.currentTarget, async () => { const m = await api('/api/deshacer', {}); await refresca(); aviso('↶ Deshecho: ' + m, 'bien'); });
+});
+$('#preparar').addEventListener('click', (e) => ocupado(e.currentTarget, async () => {
+  const lista = await api('/api/preparar', {}); await refresca();
+  $('#resultado-subir').innerHTML = lista.length
+    ? `<p class="cuadro">✔ Preparados <b>${lista.length}</b> archivo(s) en la carpeta <b>para-subir</b>:<br><code>${lista.map(esc).join('</code> <code>')}</code></p>`
+    : '<p class="cuadro">No hay nada nuevo que subir: todo está ya preparado o subido.</p>';
+}));
+$('#abrir').addEventListener('click', (e) => ocupado(e.currentTarget, async () => { await api('/api/abrir-carpeta', {}); aviso('📂 Carpeta abierta en tu ordenador.'); }));
+
+refresca().catch((e) => aviso(e.message, 'error'));
+</script>
+</body>
+</html>
