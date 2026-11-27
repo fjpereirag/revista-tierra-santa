@@ -70,6 +70,10 @@ details summary { cursor: pointer; font-weight: 600; color: var(--pizarra); }
 .estado-con { font-size: 13px; font-weight: 700; padding: 3px 11px; border-radius: 99px; background: #fff4d6; color: #6b4e00; }
 .estado-con.ok { background: #e3f3e8; color: var(--verde); }
 .ayuda { font-size: 14.5px; margin: 8px 0 0; padding-left: 20px; } .ayuda li { margin: 5px 0; }
+.adjuntas { display: flex; flex-wrap: wrap; gap: 10px; }
+.adjuntas figure { position: relative; margin: 0; }
+.adjuntas img { width: 110px; height: 82px; object-fit: cover; border-radius: 10px; display: block; }
+.adjuntas button { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; padding: 0; justify-content: center; border-radius: 50%; background: #9b1c1c; font-size: 14px; }
 .vacio { color: #5b6670; font-style: italic; margin: 14px 0 0; }
 @media (max-width: 640px) { .item { grid-template-columns: 70px 1fr; } .item .acciones { grid-column: 1 / -1; justify-content: flex-start; } .dos { grid-template-columns: 1fr; } }
 </style>
@@ -94,7 +98,7 @@ details summary { cursor: pointer; font-weight: 600; color: var(--pizarra); }
 
   <!-- 2 · NOTICIAS -->
   <section>
-    <h2><span class="paso">2</span>Noticias de la portada<small>Las 2 más recientes salen en grande, las 4 siguientes en pequeño y las 8 primeras pasan por el teletipo «Última hora». Se ordenan solas por fecha.</small></h2>
+    <h2><span class="paso">2</span>Noticias de la portada<small>Hay como máximo 8 noticias. Se ordenan solas por fecha: las 2 más recientes salen en grande, las 4 siguientes en pequeño y todas pasan por el teletipo «Última hora». Al añadir una nueva, la más antigua sale de la portada (su página no se borra).</small></h2>
     <div class="fila"><button class="borde" id="nueva-noticia">＋ Añadir una noticia a mano</button></div>
     <form id="f-noticia" hidden>
       <input type="hidden" name="url_original">
@@ -106,6 +110,8 @@ details summary { cursor: pointer; font-weight: 600; color: var(--pizarra); }
       <label>Entradilla <small>Una frase corta que resume la noticia</small><textarea name="entradilla" rows="2"></textarea></label>
       <div class="vista" id="vista-noticia"></div>
       <label>Texto de la noticia <small>Escribe o pega el texto. Deja una línea en blanco entre párrafos.</small><textarea name="texto" rows="10"></textarea></label>
+      <label>Imágenes adjuntas <small>Opcional. Puedes elegir varias a la vez (hasta 20). Salen en la página de la noticia, debajo del texto.</small><input type="file" name="adjuntas" accept="image/*" multiple></label>
+      <div class="adjuntas" id="adjuntas"></div>
       <label class="casilla"><input type="checkbox" name="wordpress"> <span>Publicarla también en la web de la revista (WordPress) <small id="nota-wp"></small></span></label>
       <details><summary>¿La noticia ya está publicada en su web? (opcional)</summary>
         <label style="margin-top:10px">Enlace de la noticia en su web <small>Si lo pones y dejas el texto vacío, la portada enlazará a esa página.</small><input name="url" placeholder="https://revistatierrasanta.com/..."></label></details>
@@ -116,7 +122,7 @@ details summary { cursor: pointer; font-weight: 600; color: var(--pizarra); }
 
   <!-- 3 · REVISTAS -->
   <section>
-    <h2><span class="paso">3</span>Hemeroteca: revistas<small id="cuenta-revistas">Cada revista nueva se pone la primera en la estantería.</small></h2>
+    <h2><span class="paso">3</span>Hemeroteca: últimas revistas<small id="cuenta-revistas">Cada revista nueva se pone la primera en la estantería.</small></h2>
     <div class="fila"><button class="borde" id="nueva-revista">＋ Añadir una revista a mano</button></div>
     <form id="f-revista" hidden>
       <div class="dos">
@@ -245,7 +251,8 @@ async function refresca() {
       <div><p>${et}${tel}${fuera}</p><h3>${esc(n.titulo)}</h3><p>${fechaBonita(n.fecha)}</p></div>
       <div class="acciones"><button class="claro" data-editar="${i}">✎ Cambiar</button><button class="rojo" data-quitar="${i}">Quitar</button></div></div>`;
   }).join('');
-  $('#cuenta-revistas').textContent = `Hay ${estado.total_revistas} revistas. Cada revista nueva se pone la primera en la estantería.`;
+  $('#cuenta-revistas').textContent = `Aquí se ven solo las 2 últimas. La hemeroteca completa tiene ${estado.total_revistas} revistas; cada revista nueva se pone la primera en la estantería.`;
+  $('#nueva-noticia').innerHTML = `＋ Añadir una noticia (hay ${estado.noticias.length} de ${estado.max_noticias})`;
   $('#lista-revistas').innerHTML = estado.revistas.map((r, i) => `<div class="item revista"><img src="../${esc(r.i)}" alt="">
       <div><h3>Revista nº ${r.l}</h3><p>${esc(r.p || '')}</p></div>
       <div class="acciones">${i === 0 ? `<button class="rojo" data-quitar-revista="${r.n}">Quitar</button>` : ''}</div></div>`).join('');
@@ -283,9 +290,15 @@ $('#buscar').addEventListener('click', (e) => ocupado(e.currentTarget, async () 
 
 // ---------- 2 · noticias
 let fotoNot = null;   // {foto, ancho, alto} preparada para guardar
+let adjuntas = [];    // [{foto:'nombre.jpg'} ya guardada | {datos, ancho, alto} nueva]
+function pintaAdjuntas() {
+  $('#adjuntas').innerHTML = adjuntas.map((g, i) => `<figure><img src="${g.datos || '../img/noticias/' + esc(g.foto)}" alt=""><button type="button" data-quitar-adj="${i}" title="Quitar esta imagen">✕</button></figure>`).join('')
+    + (adjuntas.length ? `<p class="nota" style="width:100%">${adjuntas.length} imagen(es) adjunta(s)</p>` : '');
+}
 const fN = $('#f-noticia');
 function abreNoticia(n = {}, fotoSrc = '') {
   fN.reset(); fotoNot = null; $('#vista-noticia').innerHTML = '';
+  adjuntas = (n.galeria || []).map((g) => ({ foto: g.foto })); pintaAdjuntas();
   fN.url_original.value = n.url_original || ''; fN.url.value = n.url || ''; fN.titulo.value = n.titulo || '';
   fN.fecha.value = n.fecha || new Date().toISOString().slice(0, 10); fN.entradilla.value = n.entradilla || '';
   fN.texto.value = n.texto || ''; fN.wordpress.checked = !!n.wp_id; if (!n.texto && n.url && !n.url.startsWith('noticias/')) fN.querySelector('details').open = true;
@@ -298,10 +311,17 @@ async function preparaFotoNoticia(src) {
   catch (e) { $('#vista-noticia').innerHTML = '<p class="nota">⚠ No he podido traer la foto. Descárgala de la noticia (clic derecho → Guardar imagen como) y elígela arriba en «Foto».</p>'; }
 }
 $('#nueva-noticia').addEventListener('click', () => abreNoticia());
+fN.adjuntas.addEventListener('change', async () => {
+  const fs = [...fN.adjuntas.files]; fN.adjuntas.value = '';
+  if (adjuntas.length + fs.length > 20) { aviso('Como máximo 20 imágenes adjuntas por noticia.', 'error'); return; }
+  for (const f of fs) { try { const r = reduce(await cargaImagen(await deArchivo(f)), 1600, 'image/jpeg', 0.84); adjuntas.push({ datos: r.datos, ancho: r.ancho, alto: r.alto }); } catch (e) { aviso('No se ha podido leer ' + f.name, 'error'); } }
+  pintaAdjuntas();
+});
+$('#adjuntas').addEventListener('click', (ev) => { const b = ev.target.closest('[data-quitar-adj]'); if (b) { adjuntas.splice(+b.dataset.quitarAdj, 1); pintaAdjuntas(); } });
 fN.foto.addEventListener('change', async () => { if (fN.foto.files[0]) preparaFotoNoticia(await deArchivo(fN.foto.files[0])); });
 fN.addEventListener('submit', (ev) => { ev.preventDefault(); ocupado($('button[type=submit]', fN), async () => {
   const d = { url_original: fN.url_original.value, url: fN.url.value.trim(), titulo: fN.titulo.value, fecha: fN.fecha.value, entradilla: fN.entradilla.value,
-    texto: fN.texto.value, wordpress: fN.wordpress.checked, ...(fotoNot || {}) };
+    texto: fN.texto.value, wordpress: fN.wordpress.checked, galeria: adjuntas, ...(fotoNot || {}) };
   const m = await api('/api/noticia', d); fN.hidden = true; await refresca(); aviso('✔ ' + m + ' La portada ya está actualizada; súbela con el paso 4.', m.includes('⚠') ? 'error' : 'bien');
 }); });
 $('#lista-noticias').addEventListener('click', (ev) => {

@@ -133,7 +133,7 @@ def prepara_subida():
 # ---------------------------------------------------------------- acciones
 def estado():
     revistas = P.lee_revistas()
-    return {'noticias': P.lee_noticias(), 'revistas': revistas[:8], 'total_revistas': len(revistas),
+    return {'noticias': P.lee_noticias()[:P.MAX_NOTICIAS], 'revistas': revistas[:P.MAX_REVISTAS_PANEL], 'total_revistas': len(revistas), 'max_noticias': P.MAX_NOTICIAS,
             'pendientes': len(pendientes()), 'copias': len(lista_copias()),
             'por_subir': {k: len(por_subir(k)) for k in ('github', 'ftp')}, 'ajustes': C.ajustes_para_pantalla()}
 
@@ -152,12 +152,32 @@ def guarda_noticia(d):
         raise ValueError('Falta la foto de la noticia.')
     if d.get('wordpress') and not C.listo('wordpress'):
         raise ValueError('Para publicarla en WordPress, rellena antes sus datos en «Conexiones» (paso 5).')
+    delante = sum(1 for o in noticias if o is not previa and o['fecha'] >= d['fecha'])
+    if delante >= P.MAX_NOTICIAS:
+        raise ValueError(f'Esa noticia es más antigua que las {P.MAX_NOTICIAS} que hay en la portada, así que no entraría. Revisa la fecha.')
     copia_de_seguridad(('Editar' if previa else 'Añadir') + ' noticia: ' + titulo)
     n = previa or {}
     n.update(titulo=titulo, fecha=d['fecha'], entradilla=d.get('entradilla', '').strip(), texto=texto, posicion=n.get('posicion', ''))
     if d.get('foto'):
         n['foto'] = guarda_imagen(d['foto'], 'noticias', f"{d['fecha']}-{slug(titulo)}")
         n['ancho'], n['alto'], n['posicion'] = int(d['ancho']), int(d['alto']), ''
+    # imágenes adjuntas: se conservan las que siguen y se guardan las nuevas
+    base = f"{d['fecha']}-{slug(titulo)}"
+    usados = {g['foto'] for g in n.get('galeria') or []}
+    galeria = []
+    for g in d.get('galeria') or []:
+        if g.get('foto') in usados:
+            galeria.append(next(x for x in n['galeria'] if x['foto'] == g['foto']))
+        elif g.get('datos'):
+            k = 1
+            while f'{base}-adjunta-{k}.jpg' in usados or os.path.exists(os.path.join(RAIZ, 'img', 'noticias', f'{base}-adjunta-{k}.jpg')):
+                k += 1
+            nombre = guarda_imagen(g['datos'], 'noticias', f'{base}-adjunta-{k}')
+            usados.add(nombre)
+            galeria.append({'foto': nombre, 'ancho': int(g['ancho']), 'alto': int(g['alto'])})
+    if len(galeria) > 20:
+        raise ValueError('Como máximo 20 imágenes adjuntas por noticia.')
+    n['galeria'] = galeria
     aviso = ''
     if texto:   # noticia escrita aquí: página propia en la web nueva
         n['pagina'] = n.get('pagina') or f"noticias/{d['fecha']}-{slug(titulo)}.html"
@@ -165,7 +185,8 @@ def guarda_noticia(d):
         n['url'] = n['pagina']
         if d.get('wordpress'):
             try:
-                n['wp_id'], n['wp_enlace'] = C.publica_wordpress(n, os.path.join(RAIZ, 'img', 'noticias', n['foto']), P.parrafos(texto))
+                n['wp_id'], n['wp_enlace'] = C.publica_wordpress(n, os.path.join(RAIZ, 'img', 'noticias', n['foto']), P.parrafos(texto),
+                                                                 os.path.join(RAIZ, 'img', 'noticias'))
                 n['url'] = n['wp_enlace']
                 aviso = ' También está publicada en WordPress.'
             except Exception as ex:
@@ -178,7 +199,11 @@ def guarda_noticia(d):
         raise ValueError('Esa noticia ya está en la portada.')
     if not previa:
         noticias.append(n)
-    P.guarda_noticias(noticias)
+    noticias.sort(key=lambda x: x['fecha'], reverse=True)
+    fuera = noticias[P.MAX_NOTICIAS:]
+    if fuera:
+        aviso += ' Se ha retirado de la portada la más antigua: «' + '», «'.join(x['titulo'] for x in fuera) + '».'
+    P.guarda_noticias(noticias[:P.MAX_NOTICIAS])
     P.rehace_portada()
     return 'Noticia guardada.' + aviso
 

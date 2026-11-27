@@ -185,16 +185,31 @@ def prueba_wordpress(a=None):
     return f"Conexión correcta con WordPress como «{yo.get('name', '?')}»."
 
 
-def publica_wordpress(n, ruta_foto, parrafos_html):
+def _sube_medio(base, cab, ruta):
+    with open(ruta, 'rb') as f:
+        datos = f.read()
+    tipo = 'image/webp' if ruta.endswith('.webp') else 'image/jpeg'
+    return pide('POST', base + '/media', dict(cab, **{'Content-Type': tipo, 'Content-Disposition': f'attachment; filename="{os.path.basename(ruta)}"'}), datos=datos)
+
+
+def publica_wordpress(n, ruta_foto, parrafos_html, carpeta_fotos=None):
     """Crea (o actualiza, si ya tiene wp_id) la entrada en WordPress. Devuelve (id, enlace)."""
     base, cab = _wp(lee_ajustes())
     if not n.get('wp_foto_id') or n.get('wp_foto_de') != n['foto']:
-        with open(ruta_foto, 'rb') as f:
-            datos = f.read()
-        tipo = 'image/webp' if ruta_foto.endswith('.webp') else 'image/jpeg'
-        m = pide('POST', base + '/media', dict(cab, **{'Content-Type': tipo, 'Content-Disposition': f'attachment; filename="{os.path.basename(ruta_foto)}"'}), datos=datos)
+        m = _sube_medio(base, cab, ruta_foto)
         n['wp_foto_id'], n['wp_foto_de'] = m['id'], n['foto']
     contenido = '\n\n'.join(f'<!-- wp:paragraph -->\n<p>{p}</p>\n<!-- /wp:paragraph -->' for p in parrafos_html)
+    subidas = n.get('wp_galeria') or {}          # foto -> [id, url] ya subidas antes
+    bloques = []
+    for g in n.get('galeria') or []:
+        if g['foto'] not in subidas:
+            m = _sube_medio(base, cab, os.path.join(carpeta_fotos, g['foto']))
+            subidas[g['foto']] = [m['id'], m.get('source_url', '')]
+        i, u = subidas[g['foto']]
+        bloques.append(f'<!-- wp:image {{"id":{i},"sizeSlug":"large","linkDestination":"media"}} -->\n<figure class="wp-block-image size-large"><a href="{u}"><img src="{u}" alt="" class="wp-image-{i}"/></a></figure>\n<!-- /wp:image -->')
+    n['wp_galeria'] = {k: v for k, v in subidas.items() if any(g['foto'] == k for g in n.get('galeria') or [])}
+    if bloques:
+        contenido += '\n\n<!-- wp:gallery {"linkTo":"media"} -->\n<figure class="wp-block-gallery has-nested-images columns-default is-cropped">\n' + '\n'.join(bloques) + '\n</figure>\n<!-- /wp:gallery -->'
     entrada = {'title': n['titulo'], 'content': contenido, 'excerpt': n.get('entradilla', ''), 'status': 'publish',
                'date': n['fecha'] + 'T09:00:00', 'featured_media': n['wp_foto_id']}
     if n.get('wp_id'):

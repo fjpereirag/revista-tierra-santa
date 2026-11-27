@@ -7,6 +7,8 @@ F_INDEX = os.path.join(RAIZ, 'index.html')
 F_NOTICIAS = os.path.join(RAIZ, 'datos', 'noticias.json')
 F_REVISTAS = os.path.join(RAIZ, 'js', 'hemeroteca-datos.js')
 
+MAX_NOTICIAS = 8          # el panel solo guarda las 8 más recientes
+MAX_REVISTAS_PANEL = 2    # en el panel solo se ven y se tocan las 2 últimas revistas
 MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 FLECHA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>'
 e = lambda t: html.escape(t or '', quote=True)
@@ -129,6 +131,23 @@ def parrafos(texto):
 
 def html_pagina_noticia(n):
     cuerpo = '\n'.join(f'      <p>{p}</p>' for p in parrafos(n.get('texto')))
+    gal = n.get('galeria') or []
+    galeria = ''
+    if gal:
+        fotos = '\n'.join(f'      <a href="../img/noticias/{e(g["foto"])}" data-foto><img src="../img/noticias/{e(g["foto"])}" alt="Imagen {i} de la noticia" width="{g["ancho"]}" height="{g["alto"]}" loading="lazy"></a>' for i, g in enumerate(gal, 1))
+        galeria = f'''
+  <section class="galeria" aria-label="Imágenes de la noticia">
+    <h2>Imágenes</h2>
+    <div class="rejilla">
+{fotos}
+    </div>
+  </section>
+  <dialog id="visor"><img alt=""><button type="button" aria-label="Cerrar">✕</button></dialog>
+  <script>
+    const v = document.getElementById('visor'), vi = v.querySelector('img');
+    document.querySelectorAll('[data-foto]').forEach((a) => a.addEventListener('click', (ev) => {{ ev.preventDefault(); vi.src = a.href; vi.alt = a.firstElementChild.alt; v.showModal(); }}));
+    v.addEventListener('click', () => v.close());
+  </script>'''
     entr = f'\n      <p class="entradilla">{e(n["entradilla"])}</p>' if n.get('entradilla') else ''
     desc = e(n.get('entradilla') or (parrafos(n.get('texto')) or [''])[0][:160])
     return f'''<!DOCTYPE html>
@@ -156,6 +175,15 @@ def html_pagina_noticia(n):
   figure {{ margin: 0 0 30px; }}
   figure img {{ width: 100%; height: auto; border-radius: 16px; display: block; box-shadow: 0 30px 60px -40px rgba(20,33,49,.6); }}
   article p {{ margin: 0 0 18px; }}
+  .galeria h2 {{ font: 300 28px/1.2 'Taviraj', Georgia, serif; color: #142131; margin: 40px 0 16px; }}
+  .rejilla {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }}
+  .rejilla a {{ display: block; border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; background: #eee; }}
+  .rejilla img {{ width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }}
+  .rejilla a:hover img {{ transform: scale(1.05); }}
+  dialog {{ border: 0; padding: 0; background: transparent; max-width: 94vw; max-height: 92vh; }}
+  dialog::backdrop {{ background: rgba(10, 14, 20, .88); }}
+  dialog img {{ max-width: 94vw; max-height: 92vh; display: block; border-radius: 10px; }}
+  dialog button {{ position: fixed; top: 18px; right: 22px; font-size: 26px; background: #fff; border: 0; border-radius: 50%; width: 46px; height: 46px; cursor: pointer; }}
   footer {{ text-align: center; padding: 30px 20px 50px; font-size: 14px; color: #8c7154; }}
 </style>
 </head>
@@ -167,7 +195,7 @@ def html_pagina_noticia(n):
   <figure><img src="../img/noticias/{e(n['foto'])}" alt="{e(n['titulo'])}" width="{n['ancho']}" height="{n['alto']}"></figure>
   <div class="texto">
 {cuerpo}
-  </div>
+  </div>{galeria}
 </article>
 <footer>© Revista Tierra Santa · <a href="../index.html" style="color:inherit">Volver a la portada</a></footer>
 </body>

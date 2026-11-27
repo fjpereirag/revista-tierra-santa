@@ -92,3 +92,6 @@ Copia de antes en `_copias/v3-antes-tarjetas-27nov.tgz`. Vídeo: `_capturas/v4/s
 - Paso 5 «Conexiones»: GitHub (token con permiso Contents: Read and write), FTP y WordPress (contraseña de aplicación).
   Se guardan en `%APPDATA%\PanelRevistaTierraSanta\ajustes.json`, FUERA de esta carpeta: nunca se suben.
 - Código: `herramientas/conexiones.py` (GitHub por su API, FTP con ftplib, WordPress por su API REST). Solo Python estándar.
+- Ajuste (27/11, 19:40): el panel guarda como máximo 8 noticias (al añadir una nueva sale de portada la más antigua;
+  su página no se borra) y solo muestra/gestiona las 2 últimas revistas (la hemeroteca completa sigue entera).
+  Noticias con «Imágenes adjuntas» (hasta 20): galería con visor en su página y galería en la entrada de WordPress.
