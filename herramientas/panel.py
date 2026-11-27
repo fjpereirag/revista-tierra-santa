@@ -5,6 +5,7 @@ import http.server
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import portada as P
+import conexiones as C
 
 RAIZ = P.RAIZ
 PUERTO = int(sys.argv[1]) if len(sys.argv) > 1 else 4361
@@ -12,7 +13,7 @@ WEB_REVISTA = 'https://revistatierrasanta.com'
 COPIAS = os.path.join(RAIZ, 'copias')
 PARA_SUBIR = os.path.join(RAIZ, 'para-subir')
 MANIFIESTO = os.path.join(RAIZ, 'MANIFIESTO-SHA256.txt')
-CARPETAS_WEB = ('css', 'fonts', 'img', 'js', 'vendor')
+CARPETAS_WEB = ('css', 'fonts', 'img', 'js', 'vendor', 'noticias')
 ARCHIVOS_WEB = ('index.html',)
 PROTEGIDOS = ('datos/noticias.json', 'js/hemeroteca-datos.js', 'index.html')
 NAVEGADOR = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36'
@@ -133,36 +134,53 @@ def prepara_subida():
 def estado():
     revistas = P.lee_revistas()
     return {'noticias': P.lee_noticias(), 'revistas': revistas[:8], 'total_revistas': len(revistas),
-            'pendientes': len(pendientes()), 'copias': len(lista_copias())}
+            'pendientes': len(pendientes()), 'copias': len(lista_copias()),
+            'por_subir': {k: len(por_subir(k)) for k in ('github', 'ftp')}, 'ajustes': C.ajustes_para_pantalla()}
 
 
 def guarda_noticia(d):
     noticias = P.lee_noticias()
     previa = next((n for n in noticias if n['url'] == d.get('url_original')), None)
-    if not d.get('url', '').startswith('http'):
-        raise ValueError('Falta el enlace de la noticia (empieza por https://).')
-    if not d.get('titulo', '').strip():
+    titulo, texto, url = d.get('titulo', '').strip(), d.get('texto', '').strip(), d.get('url', '').strip()
+    if not titulo:
         raise ValueError('Falta el título.')
     if not re.match(r'\d{4}-\d\d-\d\d$', d.get('fecha', '')):
         raise ValueError('Falta la fecha.')
-    otra = next((n for n in noticias if n['url'] == d['url'] and n is not previa), None)
-    if otra:
-        raise ValueError('Esa noticia ya está en la portada.')
+    if not texto and not url.startswith('http'):
+        raise ValueError('Escribe el texto de la noticia (o pega el enlace si ya está publicada en la web de la revista).')
     if not d.get('foto') and not (previa and previa.get('foto')):
         raise ValueError('Falta la foto de la noticia.')
-    copia_de_seguridad(('Editar' if previa else 'Añadir') + ' noticia: ' + d['titulo'])
+    if d.get('wordpress') and not C.listo('wordpress'):
+        raise ValueError('Para publicarla en WordPress, rellena antes sus datos en «Conexiones» (paso 5).')
+    copia_de_seguridad(('Editar' if previa else 'Añadir') + ' noticia: ' + titulo)
     n = previa or {}
-    n.update(url=d['url'].strip(), titulo=d['titulo'].strip(), fecha=d['fecha'], entradilla=d.get('entradilla', '').strip(),
-             posicion=n.get('posicion', ''))
+    n.update(titulo=titulo, fecha=d['fecha'], entradilla=d.get('entradilla', '').strip(), texto=texto, posicion=n.get('posicion', ''))
     if d.get('foto'):
-        n['foto'] = guarda_imagen(d['foto'], 'noticias', f"{d['fecha']}-{slug(d['titulo'])}")
+        n['foto'] = guarda_imagen(d['foto'], 'noticias', f"{d['fecha']}-{slug(titulo)}")
         n['ancho'], n['alto'], n['posicion'] = int(d['ancho']), int(d['alto']), ''
-    if not n.get('foto'):
-        raise ValueError('Falta la foto de la noticia.')
+    aviso = ''
+    if texto:   # noticia escrita aquí: página propia en la web nueva
+        n['pagina'] = n.get('pagina') or f"noticias/{d['fecha']}-{slug(titulo)}.html"
+        P.escribe_pagina_noticia(n)
+        n['url'] = n['pagina']
+        if d.get('wordpress'):
+            try:
+                n['wp_id'], n['wp_enlace'] = C.publica_wordpress(n, os.path.join(RAIZ, 'img', 'noticias', n['foto']), P.parrafos(texto))
+                n['url'] = n['wp_enlace']
+                aviso = ' También está publicada en WordPress.'
+            except Exception as ex:
+                aviso = f' ⚠ No se ha podido publicar en WordPress: {ex} (queda guardada aquí; puedes volver a intentarlo con «Cambiar»).'
+        elif n.get('wp_enlace'):
+            n['url'] = n['wp_enlace']
+    else:
+        n['url'] = url
+    if any(o['url'] == n['url'] and o is not n for o in noticias):
+        raise ValueError('Esa noticia ya está en la portada.')
     if not previa:
         noticias.append(n)
     P.guarda_noticias(noticias)
     P.rehace_portada()
+    return 'Noticia guardada.' + aviso
 
 
 def quita_noticia(d):
@@ -260,6 +278,62 @@ def _novedades():
     return {'noticias': nuevas, 'revistas': nuevas_r}
 
 
+
+# ---------------------------------------------------------------- subir (GitHub ahora; FTP cuando haya accesos)
+def f_subido(destino):
+    return os.path.join(RAIZ, 'datos', f'subido-{destino}.json')
+
+
+def lee_subido(destino):
+    try:
+        with open(f_subido(destino), encoding='utf-8') as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def por_subir(destino):
+    hecho = lee_subido(destino)
+    return [r for r in archivos_web() if hecho.get(r) != huella(os.path.join(RAIZ, r))]
+
+
+progreso = {'texto': ''}
+
+
+def subir(d):
+    destino = d.get('destino')
+    if destino not in ('github', 'ftp'):
+        raise ValueError('Destino desconocido.')
+    if not C.listo(destino):
+        raise ValueError('Faltan los datos de conexión. Rellénalos en «Conexiones» (paso 5).')
+    rutas = por_subir(destino)
+    if not rutas:
+        return 'No hay nada nuevo que subir: ya está todo al día.'
+    def avance(i, total):
+        progreso['texto'] = f'Subiendo {i} de {total}…'
+    hecho = lee_subido(destino)
+    if destino == 'github':
+        C.sube_github(RAIZ, rutas, f'Actualización desde el panel ({datetime.date.today():%d/%m/%Y}): {len(rutas)} archivo(s)', avance)
+    else:
+        C.sube_ftp(RAIZ, rutas, avance)
+    for r in rutas:
+        hecho[r] = huella(os.path.join(RAIZ, r))
+    with open(f_subido(destino), 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(hecho, f, ensure_ascii=False, indent=0, sort_keys=True)
+    progreso['texto'] = ''
+    sitio = 'GitHub' if destino == 'github' else 'el servidor de la revista'
+    return f'✔ Subidos {len(rutas)} archivo(s) {"a " + sitio if destino == "github" else "al servidor de la revista"}.' + (' En 1–2 minutos se verá en GitHub Pages.' if destino == 'github' else ' Vacía la caché de la web si no se ve.')
+
+
+def probar(d):
+    return {'github': C.prueba_github, 'ftp': C.prueba_ftp, 'wordpress': C.prueba_wordpress}[d['destino']]()
+
+
+def guarda_ajustes(d):
+    C.guarda_ajustes(d)
+    return C.ajustes_para_pantalla()
+
+
 # ---------------------------------------------------------------- servidor
 class Panel(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
@@ -289,6 +363,8 @@ class Panel(http.server.SimpleHTTPRequestHandler):
             return
         if u.path == '/api/estado':
             return self.trata(estado)
+        if u.path == '/api/progreso':
+            return self.responde(200, {'ok': True, 'resultado': progreso['texto']})
         if u.path == '/api/novedades':
             return self.trata(novedades)
         if u.path == '/api/imagen':
@@ -316,7 +392,8 @@ class Panel(http.server.SimpleHTTPRequestHandler):
         acciones = {'/api/noticia': guarda_noticia, '/api/noticia/quitar': quita_noticia,
                     '/api/revista': guarda_revista, '/api/revista/quitar': quita_revista,
                     '/api/deshacer': lambda d: deshacer(), '/api/preparar': lambda d: prepara_subida(),
-                    '/api/abrir-carpeta': lambda d: abre_carpeta()}
+                    '/api/abrir-carpeta': lambda d: abre_carpeta(), '/api/subir': subir,
+                    '/api/probar': probar, '/api/ajustes': guarda_ajustes}
         f = acciones.get(self.path)
         if not f:
             return self.responde(404, {'error': 'No existe'})

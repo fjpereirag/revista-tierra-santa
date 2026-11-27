@@ -80,3 +80,15 @@ Copia de antes en `_copias/v3-antes-tarjetas-27nov.tgz`. Vídeo: `_capturas/v4/s
 - Cómo funciona: `datos/noticias.json` = las noticias; `herramientas/portada.py` rehace en `index.html` solo las zonas de
   noticias, teletipo, «Lo último» y el contador; `herramientas/panel.py` = el servidor local del panel; `panel/index.html` = la pantalla.
 - No hace falta subir a la web ni a GitHub las carpetas `copias/` ni `para-subir/`.
+
+## Panel v2 (27/11/2026, noche): escribir noticias y subir con un clic
+- Noticia nueva: título, fecha, foto, entradilla y **texto**. El panel crea su página propia (`noticias/AAAA-MM-DD-titulo.html`,
+  con el diseño de la web) y la pone en portada. Casilla «Publicarla también en WordPress»: la crea como entrada en su
+  WordPress (con la foto destacada) y la portada enlaza a ella. Al «Cambiar» la noticia se actualiza la misma entrada.
+  Quitarla de la portada NO la borra de WordPress.
+- Paso 4 «Subir»: botón **Subir a GitHub** (un solo commit con solo lo cambiado) y **Subir al servidor de la revista** (FTP/FTPS
+  a `public_html`). Cada destino recuerda lo que ya tiene (`datos/subido-github.json`, `datos/subido-ftp.json`).
+  «Subir a mano» (carpeta `para-subir`) queda como alternativa.
+- Paso 5 «Conexiones»: GitHub (token con permiso Contents: Read and write), FTP y WordPress (contraseña de aplicación).
+  Se guardan en `%APPDATA%\PanelRevistaTierraSanta\ajustes.json`, FUERA de esta carpeta: nunca se suben.
+- Código: `herramientas/conexiones.py` (GitHub por su API, FTP con ftplib, WordPress por su API REST). Solo Python estándar.

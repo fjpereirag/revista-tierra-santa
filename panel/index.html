@@ -58,6 +58,18 @@ code { background: #fff; padding: 1px 6px; border-radius: 6px; font-size: 14px; 
 #mensaje { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; transition: .35s; background: var(--tinta); color: #fff; padding: 15px 24px; border-radius: 14px; font-weight: 600; max-width: min(92vw, 620px); z-index: 20; box-shadow: 0 20px 40px -15px rgba(0,0,0,.5); }
 #mensaje.ver { opacity: 1; transform: translate(-50%, 0); }
 #mensaje.error { background: #9b1c1c; } #mensaje.bien { background: var(--verde); }
+.casilla { display: flex !important; gap: 10px; align-items: flex-start; font-weight: 600; }
+.casilla input { width: 22px; height: 22px; margin-top: 2px; flex: none; accent-color: var(--pizarra); }
+.casilla small { display: block; font-weight: 400; color: #5b6670; }
+details summary { cursor: pointer; font-weight: 600; color: var(--pizarra); }
+.cuenta { background: rgba(255,255,255,.2); border-radius: 99px; padding: 1px 10px; font-size: 14px; }
+.borde .cuenta { background: var(--crema); }
+.conexiones { display: grid; gap: 18px; margin-top: 18px; }
+.conexion { margin: 0; }
+.conexion h3 { margin: 0; font-size: 19px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.estado-con { font-size: 13px; font-weight: 700; padding: 3px 11px; border-radius: 99px; background: #fff4d6; color: #6b4e00; }
+.estado-con.ok { background: #e3f3e8; color: var(--verde); }
+.ayuda { font-size: 14.5px; margin: 8px 0 0; padding-left: 20px; } .ayuda li { margin: 5px 0; }
 .vacio { color: #5b6670; font-style: italic; margin: 14px 0 0; }
 @media (max-width: 640px) { .item { grid-template-columns: 70px 1fr; } .item .acciones { grid-column: 1 / -1; justify-content: flex-start; } .dos { grid-template-columns: 1fr; } }
 </style>
@@ -86,14 +98,17 @@ code { background: #fff; padding: 1px 6px; border-radius: 6px; font-size: 14px; 
     <div class="fila"><button class="borde" id="nueva-noticia">＋ Añadir una noticia a mano</button></div>
     <form id="f-noticia" hidden>
       <input type="hidden" name="url_original">
-      <label>Enlace de la noticia en su web <small>Cópialo de la barra del navegador (empieza por https://revistatierrasanta.com/…)</small><input name="url" required placeholder="https://revistatierrasanta.com/..."></label>
       <label>Título<input name="titulo" required></label>
       <div class="dos">
         <label>Fecha<input type="date" name="fecha" required></label>
         <label>Foto <small>JPG o PNG desde tu ordenador</small><input type="file" name="foto" accept="image/*"></label>
       </div>
-      <label>Entradilla <small>Una frase corta que sale debajo del título (solo se ve si la noticia está entre las 2 grandes)</small><textarea name="entradilla" rows="2"></textarea></label>
+      <label>Entradilla <small>Una frase corta que resume la noticia</small><textarea name="entradilla" rows="2"></textarea></label>
       <div class="vista" id="vista-noticia"></div>
+      <label>Texto de la noticia <small>Escribe o pega el texto. Deja una línea en blanco entre párrafos.</small><textarea name="texto" rows="10"></textarea></label>
+      <label class="casilla"><input type="checkbox" name="wordpress"> <span>Publicarla también en la web de la revista (WordPress) <small id="nota-wp"></small></span></label>
+      <details><summary>¿La noticia ya está publicada en su web? (opcional)</summary>
+        <label style="margin-top:10px">Enlace de la noticia en su web <small>Si lo pones y dejas el texto vacío, la portada enlazará a esa página.</small><input name="url" placeholder="https://revistatierrasanta.com/..."></label></details>
       <div class="fila"><button type="submit" class="grande">💾 Guardar la noticia</button><button type="button" class="claro" data-cancelar>Cancelar</button></div>
     </form>
     <div class="lista" id="lista-noticias"></div>
@@ -123,17 +138,47 @@ code { background: #fff; padding: 1px 6px; border-radius: 6px; font-size: 14px; 
 
   <!-- 4 · PUBLICAR -->
   <section>
-    <h2><span class="paso">4</span>Publicar los cambios<small>Cuando hayas terminado, prepara los archivos y súbelos a la web y a GitHub.</small></h2>
-    <div class="fila"><button class="grande" id="preparar">📦 Preparar archivos para subir</button><button class="claro" id="abrir">📂 Abrir la carpeta «para-subir»</button></div>
+    <h2><span class="paso">4</span>Subir los cambios<small>Un clic y la web se actualiza. Solo se sube lo que ha cambiado.</small></h2>
+    <div class="fila">
+      <button class="grande" id="subir-github">⬆ Subir a GitHub <span class="cuenta" id="cuenta-github"></span></button>
+      <button class="grande borde" id="subir-ftp">⬆ Subir al servidor de la revista <span class="cuenta" id="cuenta-ftp"></span></button>
+    </div>
+    <p class="nota" id="nota-subir"></p>
     <div id="resultado-subir"></div>
-    <div class="cuadro">
-      <strong>Cómo subirlos (siempre igual):</strong>
-      <ol>
-        <li>Pulsa <b>Preparar archivos para subir</b> y después <b>Abrir la carpeta</b>. Dentro están solo los archivos que han cambiado, ya en sus carpetas.</li>
-        <li><b>Web de la revista:</b> en el gestor de archivos del alojamiento, entra en <code>public_html</code> y sube <b>todo lo que hay dentro</b> de «para-subir» (acepta sustituir los archivos). Después vacía la caché de la web.</li>
-        <li><b>GitHub:</b> en tu repositorio pulsa <b>Agregar archivo → Subir archivos</b>, arrastra <b>todo lo que hay dentro</b> de «para-subir» y pulsa <b>Confirmar cambios</b>.</li>
-        <li>Abre la web en una ventana de incógnito y comprueba que se ve lo nuevo.</li>
-      </ol>
+    <details class="cuadro"><summary><b>Otra opción: subir a mano</b></summary>
+      <div class="fila"><button class="claro" id="preparar">📦 Preparar archivos para subir</button><button class="claro" id="abrir">📂 Abrir la carpeta «para-subir»</button></div>
+      <p class="nota">Deja en la carpeta «para-subir» solo lo cambiado, ya en sus carpetas, para subirlo tú con el gestor de archivos del alojamiento o en GitHub (Agregar archivo → Subir archivos).</p>
+    </details>
+  </section>
+
+  <!-- 5 · CONEXIONES -->
+  <section>
+    <h2><span class="paso">5</span>Conexiones<small>Se rellenan una sola vez. Se guardan solo en este ordenador (no se suben a ningún sitio).</small></h2>
+    <div class="conexiones">
+      <form class="conexion" data-destino="github">
+        <h3>GitHub <span class="estado-con"></span></h3>
+        <label>Repositorio <small>usuario/nombre</small><input name="repositorio"></label>
+        <label>Rama<input name="rama"></label>
+        <label>Clave (token) <small data-puesta="token"></small><input name="token" type="password" autocomplete="off"></label>
+        <details><summary>¿Cómo consigo la clave?</summary><ol class="ayuda"><li>En github.com, entra en tu foto → <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li><li>En «Repository access» elige solo <b>revista-tierra-santa</b>.</li><li>En «Permissions → Repository permissions» pon <b>Contents: Read and write</b>.</li><li>Pulsa <b>Generate token</b>, cópialo y pégalo aquí.</li></ol></details>
+        <div class="fila"><button type="submit">💾 Guardar</button><button type="button" class="claro" data-probar>🔌 Probar</button></div>
+      </form>
+      <form class="conexion" data-destino="ftp">
+        <h3>Servidor de la revista (FTP) <span class="estado-con"></span></h3>
+        <div class="dos"><label>Servidor<input name="servidor" placeholder="ftp.revistatierrasanta.com"></label><label>Puerto<input name="puerto"></label></div>
+        <div class="dos"><label>Usuario<input name="usuario" autocomplete="off"></label><label>Contraseña <small data-puesta="contrasena"></small><input name="contrasena" type="password" autocomplete="off"></label></div>
+        <label>Carpeta de la web <small>normalmente /public_html</small><input name="carpeta"></label>
+        <label class="casilla"><input type="checkbox" name="segura"> <span>Conexión segura (FTPS) <small>déjala marcada; desmárcala solo si el alojamiento no la admite</small></span></label>
+        <div class="fila"><button type="submit">💾 Guardar</button><button type="button" class="claro" data-probar>🔌 Probar</button></div>
+      </form>
+      <form class="conexion" data-destino="wordpress">
+        <h3>WordPress de la revista <span class="estado-con"></span></h3>
+        <label>Dirección de la web<input name="web"></label>
+        <label>Usuario de WordPress<input name="usuario" autocomplete="off"></label>
+        <label>Contraseña de aplicación <small data-puesta="contrasena_app"></small><input name="contrasena_app" type="password" autocomplete="off"></label>
+        <details><summary>¿Cómo consigo la contraseña de aplicación?</summary><ol class="ayuda"><li>Entra en el escritorio de WordPress con ese usuario → <b>Usuarios → Perfil</b>.</li><li>Abajo, en <b>Contraseñas de aplicación</b>, escribe «Panel Tierra Santa» y pulsa <b>Añadir nueva contraseña de aplicación</b>.</li><li>Copia la contraseña que aparece (con sus espacios) y pégala aquí. No es tu contraseña normal.</li></ol></details>
+        <div class="fila"><button type="submit">💾 Guardar</button><button type="button" class="claro" data-probar>🔌 Probar</button></div>
+      </form>
     </div>
   </section>
 </main>
@@ -185,8 +230,10 @@ const viaPanel = (url) => '/api/imagen?url=' + encodeURIComponent(url);
 async function refresca() {
   estado = await api('/api/estado');
   const p = $('#pendientes');
-  p.textContent = estado.pendientes ? `⚠ ${estado.pendientes} archivo(s) cambiados: prepáralos para subir (paso 4)` : '✔ Nada pendiente de preparar';
-  p.className = 'aviso-subir' + (estado.pendientes ? '' : ' ok');
+  const pg = estado.por_subir.github;
+  p.textContent = pg ? `⚠ ${pg} archivo(s) sin subir a GitHub (paso 4)` : '✔ GitHub al día';
+  p.className = 'aviso-subir' + (pg ? '' : ' ok');
+  pintaConexiones(estado.ajustes);
   $('#deshacer').disabled = !estado.copias;
   const conFoto = estado.noticias.filter((n) => n.foto);
   $('#lista-noticias').innerHTML = estado.noticias.map((n, i) => {
@@ -241,6 +288,7 @@ function abreNoticia(n = {}, fotoSrc = '') {
   fN.reset(); fotoNot = null; $('#vista-noticia').innerHTML = '';
   fN.url_original.value = n.url_original || ''; fN.url.value = n.url || ''; fN.titulo.value = n.titulo || '';
   fN.fecha.value = n.fecha || new Date().toISOString().slice(0, 10); fN.entradilla.value = n.entradilla || '';
+  fN.texto.value = n.texto || ''; fN.wordpress.checked = !!n.wp_id; if (!n.texto && n.url && !n.url.startsWith('noticias/')) fN.querySelector('details').open = true;
   fN.hidden = false; fN.scrollIntoView({ behavior: 'smooth', block: 'center' }); fN.titulo.focus({ preventScroll: true });
   if (fotoSrc) preparaFotoNoticia(fotoSrc);
   else if (n.foto) $('#vista-noticia').innerHTML = `<img src="../img/noticias/${esc(n.foto)}" alt=""><p class="nota">Foto actual. Elige otra solo si quieres cambiarla.</p>`;
@@ -252,8 +300,9 @@ async function preparaFotoNoticia(src) {
 $('#nueva-noticia').addEventListener('click', () => abreNoticia());
 fN.foto.addEventListener('change', async () => { if (fN.foto.files[0]) preparaFotoNoticia(await deArchivo(fN.foto.files[0])); });
 fN.addEventListener('submit', (ev) => { ev.preventDefault(); ocupado($('button[type=submit]', fN), async () => {
-  const d = { url_original: fN.url_original.value, url: fN.url.value.trim(), titulo: fN.titulo.value, fecha: fN.fecha.value, entradilla: fN.entradilla.value, ...(fotoNot || {}) };
-  await api('/api/noticia', d); fN.hidden = true; await refresca(); aviso('✔ Noticia guardada. La portada ya está actualizada.', 'bien');
+  const d = { url_original: fN.url_original.value, url: fN.url.value.trim(), titulo: fN.titulo.value, fecha: fN.fecha.value, entradilla: fN.entradilla.value,
+    texto: fN.texto.value, wordpress: fN.wordpress.checked, ...(fotoNot || {}) };
+  const m = await api('/api/noticia', d); fN.hidden = true; await refresca(); aviso('✔ ' + m + ' La portada ya está actualizada; súbela con el paso 4.', m.includes('⚠') ? 'error' : 'bien');
 }); });
 $('#lista-noticias').addEventListener('click', (ev) => {
   const b = ev.target.closest('button'); if (!b) return;
@@ -310,6 +359,39 @@ $('#preparar').addEventListener('click', (e) => ocupado(e.currentTarget, async (
     ? `<p class="cuadro">✔ Preparados <b>${lista.length}</b> archivo(s) en la carpeta <b>para-subir</b>:<br><code>${lista.map(esc).join('</code> <code>')}</code></p>`
     : '<p class="cuadro">No hay nada nuevo que subir: todo está ya preparado o subido.</p>';
 }));
+async function sube(destino, boton) {
+  await ocupado(boton, async () => {
+    const vigila = setInterval(async () => { try { const t = await api('/api/progreso'); if (t) boton.innerHTML = '⏳ ' + t; } catch (e) {} }, 800);
+    try { const m = await api('/api/subir', { destino }); $('#resultado-subir').innerHTML = `<p class="cuadro">${esc(m)}</p>`; aviso(m, 'bien'); }
+    finally { clearInterval(vigila); }
+    await refresca();
+  });
+}
+$('#subir-github').addEventListener('click', (e) => sube('github', e.currentTarget));
+$('#subir-ftp').addEventListener('click', (e) => sube('ftp', e.currentTarget));
+function pintaConexiones(a) {
+  document.querySelectorAll('form.conexion').forEach((f) => {
+    const k = f.dataset.destino, c = a[k];
+    if (!f.dataset.pintado) { for (const [campo, v] of Object.entries(c)) { const el = f.elements[campo]; if (!el) continue; if (el.type === 'checkbox') el.checked = !!v; else if (el.type !== 'password') el.value = v; } f.dataset.pintado = 1; }
+    f.querySelectorAll('[data-puesta]').forEach((sm) => { sm.textContent = c[sm.dataset.puesta + '_puesta'] ? '✔ guardada (escribe otra solo para cambiarla)' : 'sin poner'; });
+    const est = f.querySelector('.estado-con'); est.textContent = a.listo[k] ? '✔ Lista' : 'Sin datos todavía'; est.className = 'estado-con' + (a.listo[k] ? ' ok' : '');
+  });
+  const gh = $('#subir-github'), ftp = $('#subir-ftp');
+  $('#cuenta-github').textContent = estado.por_subir.github ? estado.por_subir.github + ' pendientes' : 'al día';
+  $('#cuenta-ftp').textContent = estado.por_subir.ftp ? estado.por_subir.ftp + ' pendientes' : 'al día';
+  gh.disabled = !a.listo.github; ftp.disabled = !a.listo.ftp;
+  $('#nota-subir').textContent = !a.listo.github ? 'Para subir, pon antes la clave de GitHub en «Conexiones» (paso 5).' : !a.listo.ftp ? 'El servidor de la revista se activará cuando pongas sus datos FTP en «Conexiones».' : '';
+  fN.wordpress.disabled = !a.listo.wordpress;
+  $('#nota-wp').textContent = a.listo.wordpress ? 'Se crea como entrada en su WordPress, con la foto, y la portada enlaza a ella.' : 'Disponible cuando pongas los datos de WordPress en «Conexiones» (paso 5).';
+}
+document.querySelectorAll('form.conexion').forEach((f) => {
+  const datos = () => { const o = {}; for (const el of f.elements) if (el.name) o[el.name] = el.type === 'checkbox' ? el.checked : el.value; return { [f.dataset.destino]: o }; };
+  f.addEventListener('submit', (ev) => { ev.preventDefault(); ocupado(f.querySelector('button[type=submit]'), async () => {
+    await api('/api/ajustes', datos()); f.querySelectorAll('input[type=password]').forEach((i) => i.value = ''); await refresca(); aviso('✔ Datos guardados en este ordenador.', 'bien'); }); });
+  f.querySelector('[data-probar]').addEventListener('click', (ev) => ocupado(ev.currentTarget, async () => {
+    await api('/api/ajustes', datos()); f.querySelectorAll('input[type=password]').forEach((i) => i.value = ''); await refresca();
+    aviso(await api('/api/probar', { destino: f.dataset.destino }), 'bien'); }));
+});
 $('#abrir').addEventListener('click', (e) => ocupado(e.currentTarget, async () => { await api('/api/abrir-carpeta', {}); aviso('📂 Carpeta abierta en tu ordenador.'); }));
 
 refresca().catch((e) => aviso(e.message, 'error'));

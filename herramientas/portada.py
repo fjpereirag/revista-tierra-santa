@@ -116,3 +116,66 @@ def rehace_portada():
         raise ValueError('No encuentro la fecha de «Lo último» o el contador de revistas en index.html')
     with open(F_INDEX, 'w', encoding='utf-8', newline='\n') as f:
         f.write(t)
+
+
+# ---------------------------------------------------------------- página propia de cada noticia (noticias/*.html)
+D_NOTICIAS = os.path.join(RAIZ, 'noticias')
+
+
+def parrafos(texto):
+    bloques = [b.strip() for b in re.split(r'\n\s*\n', (texto or '').replace('\r', '')) if b.strip()]
+    return [e(b).replace('\n', '<br>') for b in bloques]
+
+
+def html_pagina_noticia(n):
+    cuerpo = '\n'.join(f'      <p>{p}</p>' for p in parrafos(n.get('texto')))
+    entr = f'\n      <p class="entradilla">{e(n["entradilla"])}</p>' if n.get('entradilla') else ''
+    desc = e(n.get('entradilla') or (parrafos(n.get('texto')) or [''])[0][:160])
+    return f'''<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{e(n['titulo'])} · Revista Tierra Santa</title>
+<meta name="description" content="{desc}">
+<meta property="og:title" content="{e(n['titulo'])}">
+<meta property="og:image" content="../img/noticias/{e(n['foto'])}">
+<link rel="icon" href="../img/marca/cruz.png">
+<link rel="stylesheet" href="../css/fuentes.css">
+<style>
+  body {{ margin: 0; background: #faf9f1; color: #293945; font: 17px/1.75 'Montserrat', system-ui, sans-serif; }}
+  header {{ background: #fff; border-bottom: 1px solid rgba(20,33,49,.1); }}
+  header div {{ max-width: 1100px; margin: 0 auto; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }}
+  header img {{ height: 46px; width: auto; }}
+  a.volver {{ color: #142131; text-decoration: none; font-weight: 600; font-size: 15px; border: 1.5px solid #142131; border-radius: 99px; padding: 9px 18px; }}
+  a.volver:hover {{ background: #142131; color: #fff; }}
+  article {{ max-width: 780px; margin: 0 auto; padding: 40px 22px 70px; }}
+  .fecha {{ color: #a68563; font-weight: 600; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; }}
+  h1 {{ font: 300 clamp(32px, 5vw, 50px)/1.12 'Taviraj', Georgia, serif; color: #142131; margin: 0 0 18px; }}
+  .entradilla {{ font-size: 20px; line-height: 1.6; color: #142131; margin: 0 0 26px; }}
+  figure {{ margin: 0 0 30px; }}
+  figure img {{ width: 100%; height: auto; border-radius: 16px; display: block; box-shadow: 0 30px 60px -40px rgba(20,33,49,.6); }}
+  article p {{ margin: 0 0 18px; }}
+  footer {{ text-align: center; padding: 30px 20px 50px; font-size: 14px; color: #8c7154; }}
+</style>
+</head>
+<body>
+<header><div><a href="../index.html"><img src="../img/marca/logo.png" alt="Revista Tierra Santa"></a><a class="volver" href="../index.html#actualidad">← Volver a Actualidad</a></div></header>
+<article>
+  <p class="fecha"><time datetime="{n['fecha']}">{fecha_larga(n['fecha'], True)}</time></p>
+  <h1>{e(n['titulo'])}</h1>{entr}
+  <figure><img src="../img/noticias/{e(n['foto'])}" alt="{e(n['titulo'])}" width="{n['ancho']}" height="{n['alto']}"></figure>
+  <div class="texto">
+{cuerpo}
+  </div>
+</article>
+<footer>© Revista Tierra Santa · <a href="../index.html" style="color:inherit">Volver a la portada</a></footer>
+</body>
+</html>
+'''
+
+
+def escribe_pagina_noticia(n):
+    os.makedirs(D_NOTICIAS, exist_ok=True)
+    with open(os.path.join(RAIZ, n['pagina']), 'w', encoding='utf-8', newline='\n') as f:
+        f.write(html_pagina_noticia(n))
