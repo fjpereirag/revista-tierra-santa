@@ -715,3 +715,55 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
   .ts-sus__lista { bottom: 96px; }
 }
 @media (prefers-reduced-motion: reduce) { .tsk__avion { animation: none; left: 50%; top: 10%; } }
+
+/* ---------- Quiénes somos · equipo y Dónde estamos · contacto (27/11, contenido de sus páginas interiores) ---------- */
+.ts-quienes__botones { display: flex; flex-wrap: wrap; gap: 12px; }
+.ts-equipo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(18px, 2.4vw, 32px); margin-top: clamp(48px, 6vw, 88px); }
+.ts-persona { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 22px; align-items: start; padding: 26px; border-radius: 18px; background: var(--ts-papel); border: 1px solid var(--ts-linea); }
+.ts-persona img { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--ts-oro-claro); }
+.ts-persona h3 { margin: 4px 0 2px; font-family: var(--ts-serif); font-weight: 300; font-size: 25px; line-height: 1.15; color: var(--ts-tinta); }
+.ts-persona__cargo { margin: 0 0 12px; font-size: 12.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ts-oro); }
+.ts-persona p:not(.ts-persona__cargo) { margin: 0 0 10px; font-size: 14.5px; line-height: 1.65; }
+
+.ts-contacto { padding: clamp(56px, 7vw, 110px) 0; background: var(--ts-crema); }
+.ts-contacto__par { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
+.ts-form { display: grid; gap: 18px; padding: clamp(24px, 3vw, 40px); background: #fff; border-radius: 22px; box-shadow: 0 30px 60px -40px rgba(20, 33, 49, .45); }
+.ts-form .ts-titulo-grande { margin: 0 0 6px; font-size: clamp(32px, 1.8rem + 1vw, 46px); }
+.ts-form fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }
+.ts-form legend, .ts-form__campo { font-weight: 600; color: var(--ts-tinta); font-size: 15px; }
+.ts-form legend { padding: 0; margin-bottom: 8px; }
+.ts-form i { font-weight: 400; font-size: 13px; color: #c0392b; }
+.ts-form__dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ts-form label { display: grid; gap: 6px; font-size: 14px; }
+.ts-form__campo { display: grid; gap: 8px; }
+.ts-form input:not([type="checkbox"]), .ts-form textarea { width: 100%; font: inherit; font-size: 16px; font-weight: 400; color: var(--ts-tinta); padding: 12px 14px; border: 1.5px solid rgba(20, 33, 49, .22); border-radius: 12px; background: var(--ts-papel); transition: border-color .25s, box-shadow .25s, background .25s; }
+.ts-form textarea { resize: vertical; min-height: 150px; }
+.ts-form input:focus, .ts-form textarea:focus { outline: none; border-color: var(--ts-oro); background: #fff; box-shadow: 0 0 0 4px rgba(166, 133, 99, .18); }
+.ts-form [aria-invalid="true"] { border-color: #c0392b !important; }
+.ts-form__cuenta { margin: -8px 0 0; font-size: 13px; color: var(--ts-marron); }
+.ts-form__legal { margin: 0; font-size: 13px; line-height: 1.6; color: #5b6670; }
+.ts-form__legal a { color: var(--ts-oro); text-decoration: underline; }
+.ts-form__casilla { grid-template-columns: 22px 1fr !important; align-items: start; gap: 10px !important; font-size: 14px; cursor: pointer; }
+.ts-form__casilla input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ts-pizarra); }
+.ts-form__aviso { margin: 0; min-height: 1px; font-size: 14px; font-weight: 600; color: #c0392b; }
+.ts-form__aviso.es-ok { color: #2e7d4f; }
+.ts-form .ts-boton { justify-self: start; }
+.ts-form__nota { margin: -6px 0 0; font-size: 12.5px; color: var(--ts-marron); }
+.ts-contacto__datos { display: grid; gap: 14px; justify-items: start; padding-top: 8px; font-size: 15px; }
+.ts-contacto__cruz { width: 92px; height: 92px; fill: var(--ts-cruz); margin-bottom: 6px; }
+.ts-contacto__datos ul { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 14px; width: 100%; }
+.ts-contacto__datos li { display: grid; gap: 2px; padding-bottom: 14px; border-bottom: 1px solid var(--ts-linea); color: var(--ts-tinta); }
+.ts-contacto__datos li span { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ts-oro); }
+.ts-contacto__datos li a { color: var(--ts-marron); word-break: break-word; }
+.ts-contacto__datos li a:hover { color: var(--ts-tinta); text-decoration: underline; }
+.ts-contacto__datos p { margin: 0; font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 960px) {
+  .ts-equipo { grid-template-columns: 1fr; }
+  .ts-contacto__par { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .ts-persona { grid-template-columns: 1fr; justify-items: start; padding: 22px; }
+  .ts-form__dos { grid-template-columns: 1fr; }
+  .ts-form .ts-boton { justify-self: stretch; }
+}

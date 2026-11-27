@@ -338,3 +338,27 @@ $$('[data-copiar]').forEach((b) => b.addEventListener('click', async () => {
   b.classList.add('es-copiado'); et.textContent = 'IBAN copiado';
   setTimeout(() => { b.classList.remove('es-copiado'); et.textContent = 'Copiar IBAN'; }, 2200);
 }));
+
+/* ---------------------------------------------------------------- formulario «Contacta con nosotros» (27/11)
+   Su web envía el formulario a su servidor; aquí no hay servidor, así que se abre el correo del visitante
+   con el mensaje ya escrito para la Redacción. */
+(function contacto() {
+  const f = $('.ts-form'); if (!f) return;
+  const aviso = $('.ts-form__aviso', f), cuenta = $('[data-cuenta]', f), msg = f.mensaje;
+  msg.addEventListener('input', () => { cuenta.textContent = msg.value.length; });
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    $$('[aria-invalid]', f).forEach((el) => el.removeAttribute('aria-invalid'));
+    const mal = (el, texto) => { el.setAttribute('aria-invalid', 'true'); el.focus(); aviso.className = 'ts-form__aviso'; aviso.textContent = texto; };
+    const v = (n) => f[n].value.trim();
+    if (!v('nombre')) return mal(f.nombre, 'Escribe tu nombre.');
+    if (!f.email.checkValidity() || !v('email')) return mal(f.email, 'Escribe un email válido.');
+    if (v('email').toLowerCase() !== v('email2').toLowerCase()) return mal(f.email2, 'Los dos emails no coinciden.');
+    if (!v('asunto')) return mal(f.asunto, 'Escribe el asunto.');
+    if (!v('mensaje')) return mal(f.mensaje, 'Escribe tu mensaje.');
+    if (!f.consiento.checked) return mal(f.consiento, 'Debes aceptar el tratamiento de protección de datos.');
+    const cuerpo = `${v('mensaje')}\n\n— ${[v('nombre'), v('apellidos')].filter(Boolean).join(' ')}\n${v('email')}`;
+    location.href = `mailto:direccion@revistatierrasanta.com?subject=${encodeURIComponent(v('asunto'))}&body=${encodeURIComponent(cuerpo)}`;
+    aviso.className = 'ts-form__aviso es-ok'; aviso.textContent = 'Se ha abierto tu programa de correo con el mensaje. Solo falta pulsar «Enviar» allí.';
+  });
+})();

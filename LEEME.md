@@ -62,3 +62,8 @@ Copia de antes en `_copias/v3-antes-tarjetas-27nov.tgz`. Vídeo: `_capturas/v4/s
   doble clic → arranca `servir.py` y abre http://localhost:4360. Si se abre con doble clic, la entrada lo avisa.
 - Móvil: los enlaces del menú (botón de dos rayas) no llevaban a ninguna parte: con el menú abierto el desplazamiento
   suave (Lenis) está parado e ignoraba el salto. Ahora se reactiva antes de saltar (`js/tierra.js`).
+- Quiénes somos y Dónde estamos puestos al día con el contenido de sus páginas interiores (27/11/2026):
+  equipo (Fray Luis Quintana Giménez, María Díaz-Ripoll Lozano, Cayetana H. Johnson, María José Villegas; fotos en
+  `img/equipo/`), botones «Haz una donación» y «Suscripciones», y sección propia «Contacta con nosotros» con su
+  formulario, dirección, emails de Redacción y Suscripciones, teléfono, Ley 49/2002, NIE y Depósito legal/ISSN.
+  El formulario abre el correo del visitante dirigido a direccion@revistatierrasanta.com (aquí no hay servidor).
