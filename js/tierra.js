@@ -31,6 +31,7 @@ $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
   if (!destino) return;
   e.preventDefault();
   const ir = id === '#inicio' ? 0 : destino;
+  lenis?.start(); // si el menú del móvil estaba abierto, Lenis seguía parado e ignoraba el salto
   if (lenis) lenis.scrollTo(ir, { offset: id === '#inicio' ? 0 : -(cabAlto() + 10), duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
   else destino.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth' });
   history.replaceState(null, '', id);

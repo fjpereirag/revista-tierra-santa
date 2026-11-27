@@ -60,3 +60,5 @@ Copia de antes en `_copias/v3-antes-tarjetas-27nov.tgz`. Vídeo: `_capturas/v4/s
 - Hemeroteca: el nº 834 es «Mayo – Junio 2015» (venía 2014 en el nombre de su archivo).
 - No arrancaba al abrir `index.html` con doble clic (file://: el navegador bloquea los módulos). Nuevo `ABRIR-WEB.bat`:
   doble clic → arranca `servir.py` y abre http://localhost:4360. Si se abre con doble clic, la entrada lo avisa.
+- Móvil: los enlaces del menú (botón de dos rayas) no llevaban a ninguna parte: con el menú abierto el desplazamiento
+  suave (Lenis) está parado e ignoraba el salto. Ahora se reactiva antes de saltar (`js/tierra.js`).
