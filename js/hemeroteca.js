@@ -6,8 +6,21 @@ import { REVISTAS } from './hemeroteca-datos.js';
 import { t, meses } from './idioma.js';
 const IMG = (ruta) => new URL('../' + ruta, import.meta.url).href;   // las portadas, también desde en/, it/, pt-br/
 
+// Año de cada revista para la línea de tiempo. Si su nombre trae el año (71 números) se usa ese; si no, se calcula
+// entre puntos conocidos: mensual desde el nº 1 (enero 1921), pausa 1941–1945, bimestral después, y el primer número
+// de cada década según su propio filtro. Es solo para moverse: el rótulo marca «≈» cuando el año es calculado.
+const PUNTOS = [[1, 1921], [229, 1940], [234, 1946], [235, 1947], [253, 1950], [372, 1960], [491, 1970], [606, 1980],
+  [682, 1990], [742, 2000], [802, 2010], [820, 2013], [862, 2020], [898, 2026]];
+const anioDe = (n) => {
+  for (let k = 0; k < PUNTOS.length - 1; k++) {
+    const [n0, y0] = PUNTOS[k], [n1, y1] = PUNTOS[k + 1];
+    if (n < n1) return Math.floor(y0 + ((n - n0) * (y1 - y0)) / (n1 - n0));
+  }
+  return PUNTOS[PUNTOS.length - 1][1];
+};
+REVISTAS.forEach((r) => { const m = (r.p || '').match(/(19|20)\d\d/); r.y = m ? +m[0] : Math.max(r.d, Math.min(r.d + 9, anioDe(r.n))); r.yx = !!m; });
+const Y0 = 1921, Y1 = Math.max(...REVISTAS.map((r) => r.y));
 let LISTA = REVISTAS, N = LISTA.length;   // LISTA cambia al filtrar por idioma
-const DECADAS = [2020, 2010, 2000, 1990, 1980, 1970, 1960, 1950, 1940, 1930, 1920];
 const CRUZ = 'M30 8H70V18H56V44H82V30H92V70H82V56H56V82H70V92H30V82H44V56H18V70H8V30H18V44H44V18H30Z M23.6 19H28.4V23.6H33V28.4H28.4V33H23.6V28.4H19V23.6H23.6Z M71.6 19H76.4V23.6H81V28.4H76.4V33H71.6V28.4H67V23.6H71.6Z M23.6 67H28.4V71.6H33V76.4H28.4V81H23.6V76.4H19V71.6H23.6Z M71.6 67H76.4V71.6H81V76.4H76.4V81H71.6V76.4H67V71.6H71.6Z';
 const BASE = 'https://revistatierrasanta.com/revistas/';
 const mod = (n, m) => ((n % m) + m) % m;
@@ -26,20 +39,42 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   const vivos = new Map(), libres = [];
   let ciclo = true;   // con pocas revistas (al filtrar) no se repiten en bucle
 
-  /* ---------- pestañas por década (las de su propio filtro) ---------- */
-  const nav = $('.ts-est__pestanas');
-  DECADAS.forEach((dec) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'ts-est__pestana'; b.textContent = dec; b.dataset.dec = dec;
-    b.setAttribute('aria-label', t('Década de {d}', { d: dec }));
-    b.addEventListener('click', () => { const i = LISTA.findIndex((r) => r.d === dec); if (i >= 0) T = ciclo ? cercano(i) : i; });
-    nav.append(b);
-  });
-  const pestanas = () => {
-    const dec = LISTA[activo].d;
-    nav.querySelectorAll('.ts-est__pestana').forEach((b) => { const si = +b.dataset.dec === dec; b.classList.toggle('es-activa', si); b.setAttribute('aria-current', si ? 'true' : 'false'); });
-    const a = nav.querySelector('.es-activa');
-    if (a) { nav.style.setProperty('--tx', `${a.offsetLeft}px`); nav.style.setProperty('--tw', `${a.offsetWidth}px`); if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' }); }
+  /* ---------- línea de tiempo 1921 → hoy: tocar o arrastrar para elegir un año (sustituye a las pestañas de décadas) ---------- */
+  const linea = $('.ts-linea'), riel = linea.querySelector('.ts-linea__riel'), marca = linea.querySelector('.ts-linea__marca');
+  const pct = (y) => ((y - Y0) / (Y1 - Y0)) * 100;
+  const anios = [];
+  for (let y = Y0; y <= Y1; y++) {
+    const i = document.createElement('i'); i.className = 'ts-linea__anio' + (y % 10 === 0 ? ' es-decada' : ''); i.style.left = pct(y) + '%'; i.dataset.y = y;
+    if (y % 10 === 0 || y === Y0) { const b = document.createElement('b'); b.textContent = y; i.append(b); }
+    riel.append(i); anios.push(i);
+  }
+  linea.setAttribute('aria-valuemin', Y0); linea.setAttribute('aria-valuemax', Y1);
+  const marcaVacios = () => { const hay = new Set(LISTA.map((r) => r.y)); anios.forEach((i) => i.classList.toggle('es-vacio', !hay.has(+i.dataset.y))); };
+  marcaVacios();
+  const ponMarca = (y, aprox) => {
+    marca.style.left = pct(y) + '%'; marca.querySelector('b').textContent = (aprox ? '≈ ' : '') + y;
+    linea.setAttribute('aria-valuenow', y); linea.setAttribute('aria-valuetext', (aprox ? '≈ ' : '') + y);
   };
+  // la revista de ese año (la primera del año); si no hay, la del año más cercano
+  const vaAlAnio = (y) => {
+    let mejor = -1, dist = 1e9;
+    LISTA.forEach((r, i) => { const dd = Math.abs(r.y - y) * 1000 + (r.y === y ? r.n / 1e4 : 0.5); if (dd < dist) { dist = dd; mejor = i; } });
+    if (mejor >= 0) T = ciclo ? cercano(mejor) : mejor;
+  };
+  let arrastraLinea = false;
+  const anioEn = (x) => { const r = riel.getBoundingClientRect(); return Math.round(Y0 + Math.max(0, Math.min(1, (x - r.left) / r.width)) * (Y1 - Y0)); };
+  linea.addEventListener('pointerdown', (e) => { arrastraLinea = true; linea.setPointerCapture(e.pointerId); linea.classList.add('es-arrastre'); const y = anioEn(e.clientX); ponMarca(y, false); vaAlAnio(y); });
+  linea.addEventListener('pointermove', (e) => { if (!arrastraLinea) return; const y = anioEn(e.clientX); if (+linea.getAttribute('aria-valuenow') !== y) { ponMarca(y, false); vaAlAnio(y); } });
+  const sueltaLinea = () => { arrastraLinea = false; linea.classList.remove('es-arrastre'); };
+  linea.addEventListener('pointerup', sueltaLinea); linea.addEventListener('pointercancel', sueltaLinea);
+  linea.addEventListener('keydown', (e) => {
+    const paso = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10 }[e.key];
+    if (!paso && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault(); e.stopPropagation();
+    const y0 = +linea.getAttribute('aria-valuenow') || Y1, y = e.key === 'Home' ? Y0 : e.key === 'End' ? Y1 : Math.max(Y0, Math.min(Y1, y0 + paso));
+    ponMarca(y, false); vaAlAnio(y);
+  });
+  const pestanas = () => { if (!arrastraLinea && LISTA[activo]) ponMarca(LISTA[activo].y, !LISTA[activo].yx); };
 
   /* ---------- un lomo (se recicla) ---------- */
   function crea() {
@@ -145,7 +180,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   $('.ts-est__ant').addEventListener('click', () => { T = Math.round(T) - 1; });
   $('.ts-est__sig').addEventListener('click', () => { T = Math.round(T) + 1; });
   document.addEventListener('keydown', (e) => {
-    if (!visible || /input|textarea/i.test(document.activeElement?.tagName || '')) return;
+    if (!visible || /input|textarea/i.test(document.activeElement?.tagName || '') || document.activeElement === linea) return;
     const r = sec.getBoundingClientRect(); if (r.top > innerHeight * 0.5 || r.bottom < innerHeight * 0.5) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); T = Math.round(T) - 1; }
     if (e.key === 'ArrowRight') { e.preventDefault(); T = Math.round(T) + 1; }
@@ -164,7 +199,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   const suelta = (e) => { if (puntero !== e.pointerId) return; if (arrastra) T = Math.round(T); arrastra = false; puntero = null; balda.classList.remove('es-arrastre'); setTimeout(() => { movido = false; }, 80); };
   balda.addEventListener('pointerup', suelta); balda.addEventListener('pointercancel', suelta);
   addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
-  addEventListener('resize', () => { mide(); pestanas(); });
+  addEventListener('resize', () => { mide(); });
 
   /* ---------- filtro por idioma (botones «Todos · ES · EN · IT · PT») ---------- */
   const filtro = $('.ts-filtro[data-filtro="revistas"]');
@@ -176,7 +211,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     LISTA = nueva; N = LISTA.length; ciclo = N > 40;
     for (const [, o] of vivos) { o.lomo.style.visibility = o.tapa.style.visibility = 'hidden'; o.vl = o.vt = false; o.i = -1; libres.push(o); }
     vivos.clear(); s = T = 0; activo = -1;
-    nav.querySelectorAll('.ts-est__pestana').forEach((x) => { x.hidden = !LISTA.some((r) => r.d === +x.dataset.dec); });
+    marcaVacios();
     rotulo(0, 1, true);
   });
 

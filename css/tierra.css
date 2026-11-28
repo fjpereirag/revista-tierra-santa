@@ -810,3 +810,33 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
 @media (max-height: 700px) { .ts-cortinilla nav a { font-size: clamp(28px, 7.5vw, 44px); } }
 /* 28/11 · en el móvil el selector también se ve en la cabecera, sin abrir el menú */
 @media (max-width: 560px) { .ts-cab__fila > .ts-idiomas { display: flex; margin-left: auto; gap: 0; font-size: 11px; } .ts-cab__fila > .ts-idiomas a { padding: 8px 5px; } .ts-hamb { margin-left: 0; } }
+
+/* ---------------------------------------------------------------- 28/11 · línea de tiempo de la hemeroteca (en lugar de las décadas) */
+.ts-linea { position: absolute; z-index: 6; left: 50%; top: calc(50% - var(--H) / 2 - 96px); transform: translateX(-50%); width: min(820px, calc(100% - 2 * var(--ts-margen))); height: 58px; padding: 26px 0 0; cursor: pointer; touch-action: none; outline: none; }
+.ts-linea__riel { position: relative; height: 14px; border-bottom: 1.5px solid var(--ts-tinta); }
+.ts-linea__anio { position: absolute; bottom: 0; width: 1px; height: 6px; background: rgba(20, 33, 49, .45); transform: translateX(-50%); }
+.ts-linea__anio.es-decada { height: 14px; width: 1.5px; background: var(--ts-tinta); }
+.ts-linea__anio.es-vacio { background: rgba(20, 33, 49, .12); }
+.ts-linea__anio b { position: absolute; top: 19px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--ts-tinta); font-style: normal; }
+.ts-linea__marca { position: absolute; bottom: -6px; width: 0; height: 0; transition: left .45s cubic-bezier(.2, .8, .2, 1); pointer-events: none; }
+.ts-linea.es-arrastre .ts-linea__marca { transition: none; }
+.ts-linea__marca::before { content: ''; position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--ts-cruz); box-shadow: 0 0 0 4px rgba(196, 0, 0, .15); }
+.ts-linea__marca b { position: absolute; bottom: 14px; left: 0; transform: translateX(-50%); padding: 4px 9px; border-radius: 99px; background: var(--ts-tinta); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+.ts-linea:focus-visible .ts-linea__marca b { outline: 2px solid var(--ts-cruz); outline-offset: 2px; }
+.ts-linea:hover .ts-linea__marca::before { transform: scale(1.15); }
+@media (max-width: 767px) {
+  .ts-linea { top: calc(50% - var(--H) / 2 - 64px); width: calc(100% - 36px); }
+  .ts-linea__anio b { font-size: 8.5px; letter-spacing: 0; }
+  .ts-linea__anio:not(.es-decada) { height: 4px; }
+  .ts-est > .ts-filtro { top: calc(50% - var(--H) / 2 - 118px); }
+}
+.ts-linea__anio b { top: auto; bottom: -17px; }
+.ts-linea { width: clamp(340px, calc(100vw - 2 * 440px), 820px); }
+/* pantallas medianas: el título grande de la hemeroteca deja sitio a una línea de tiempo larga */
+@media (max-width: 1220px) and (min-width: 768px) {
+  .ts-est__intro .ts-est__titulo { display: none; }
+  .ts-linea { width: calc(100% - 2 * var(--ts-margen)); top: calc(50% - var(--H) / 2 - 84px); }
+  .ts-est > .ts-filtro { right: auto; left: var(--ts-margen); top: calc(var(--ts-cab-alto) + 44px); justify-content: flex-start; }
+}
+@media (max-width: 1220px) { .ts-linea__anio b { font-size: 9px; letter-spacing: 0; } }
+@media (max-width: 1400px) { .ts-linea__anio:first-child b { display: none; } }
