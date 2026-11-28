@@ -757,6 +757,10 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
 .ts-contacto__datos li a { color: var(--ts-marron); word-break: break-word; }
 .ts-contacto__datos li a:hover { color: var(--ts-tinta); text-decoration: underline; }
 .ts-contacto__datos p { margin: 0; font-size: 14px; line-height: 1.6; }
+.ts-contacto__mapa { margin: 8px 0 0; width: 100%; }
+.ts-contacto__mapa iframe { display: block; width: 100%; height: 260px; border: 0; border-radius: 16px; box-shadow: 0 20px 40px -30px rgba(20, 33, 49, .5); background: #e9e4d6; }
+.ts-contacto__mapa figcaption { margin-top: 8px; font-size: 13.5px; }
+.ts-contacto__mapa figcaption a { color: var(--ts-marron); text-decoration: underline; }
 
 @media (max-width: 960px) {
   .ts-equipo { grid-template-columns: 1fr; }
