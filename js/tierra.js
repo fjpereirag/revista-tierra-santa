@@ -363,3 +363,21 @@ $$('[data-copiar]').forEach((b) => b.addEventListener('click', async () => {
     aviso.className = 'ts-form__aviso es-ok'; aviso.textContent = t('Se ha abierto tu programa de correo con el mensaje. Solo falta pulsar «Enviar» allí.');
   });
 })();
+
+/* ---------------------------------------------------------------- filtro de noticias por idioma (28/11)
+   «Todos» enseña lo de siempre (2 grandes + 4 pequeñas); un idioma enseña todas las noticias con foto metidas en él. */
+(function filtroNoticias() {
+  const caja = $('.ts-filtro[data-filtro="noticias"]'); if (!caja) return;
+  const tarjetas = $$('.ts-destacadas > article, .ts-breves > article'), vacio = $('.ts-filtro__vacio');
+  caja.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    const L = b.dataset.idioma;
+    $$('button', caja).forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    let n = 0;
+    tarjetas.forEach((a) => {
+      const ver = L === 'todos' ? !a.hasAttribute('data-extra') : a.dataset.idioma === L;
+      a.hidden = !ver; if (ver) { n++; a.classList.add('es-dentro'); }
+    });
+    if (vacio) vacio.hidden = n > 0;
+  });
+})();

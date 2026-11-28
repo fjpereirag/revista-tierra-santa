@@ -6,7 +6,7 @@ import { REVISTAS } from './hemeroteca-datos.js';
 import { t, meses } from './idioma.js';
 const IMG = (ruta) => new URL('../' + ruta, import.meta.url).href;   // las portadas, también desde en/, it/, pt-br/
 
-const N = REVISTAS.length;
+let LISTA = REVISTAS, N = LISTA.length;   // LISTA cambia al filtrar por idioma
 const DECADAS = [2020, 2010, 2000, 1990, 1980, 1970, 1960, 1950, 1940, 1930, 1920];
 const CRUZ = 'M30 8H70V18H56V44H82V30H92V70H82V56H56V82H70V92H30V82H44V56H18V70H8V30H18V44H44V18H30Z M23.6 19H28.4V23.6H33V28.4H28.4V33H23.6V28.4H19V23.6H23.6Z M71.6 19H76.4V23.6H81V28.4H76.4V33H71.6V28.4H67V23.6H71.6Z M23.6 67H28.4V71.6H33V76.4H28.4V81H23.6V76.4H19V71.6H23.6Z M71.6 67H76.4V71.6H81V76.4H76.4V81H71.6V76.4H67V71.6H71.6Z';
 const BASE = 'https://revistatierrasanta.com/revistas/';
@@ -24,17 +24,18 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   let s = 0, T = 0, activo = -1, hover = null, mx = -999, my = -999, tiltX = 0, tiltY = 0, sobrePortada = false;
   let arrastra = false, movido = false, x0 = 0, T0 = 0, puntero = null, rueda = 0, ultimo = performance.now(), visible = false, entrada = false;
   const vivos = new Map(), libres = [];
+  let ciclo = true;   // con pocas revistas (al filtrar) no se repiten en bucle
 
   /* ---------- pestañas por década (las de su propio filtro) ---------- */
   const nav = $('.ts-est__pestanas');
   DECADAS.forEach((dec) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ts-est__pestana'; b.textContent = dec; b.dataset.dec = dec;
     b.setAttribute('aria-label', t('Década de {d}', { d: dec }));
-    b.addEventListener('click', () => { const i = REVISTAS.findIndex((r) => r.d === dec); if (i >= 0) T = cercano(i); });
+    b.addEventListener('click', () => { const i = LISTA.findIndex((r) => r.d === dec); if (i >= 0) T = ciclo ? cercano(i) : i; });
     nav.append(b);
   });
   const pestanas = () => {
-    const dec = REVISTAS[activo].d;
+    const dec = LISTA[activo].d;
     nav.querySelectorAll('.ts-est__pestana').forEach((b) => { const si = +b.dataset.dec === dec; b.classList.toggle('es-activa', si); b.setAttribute('aria-current', si ? 'true' : 'false'); });
     const a = nav.querySelector('.es-activa');
     if (a) { nav.style.setProperty('--tx', `${a.offsetLeft}px`); nav.style.setProperty('--tw', `${a.offsetWidth}px`); if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' }); }
@@ -60,7 +61,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   }
   function asigna(o, v) {
     o.v = v; const i = mod(v, N); if (o.i === i) return;
-    o.i = i; const r = REVISTAS[i];
+    o.i = i; const r = LISTA[i];
     o.lomo.style.setProperty('--c', r.c); o.tapa.style.setProperty('--c', r.c); o.lomo.classList.toggle('es-claro', !r.t);
     o.num.textContent = r.l; o.diseno.textContent = t('Nº {n}', { n: r.l });
     o.img.classList.remove('es-lista'); o.img.removeAttribute('src'); o.cargada = false;
@@ -86,7 +87,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     viejos.forEach((x) => { x.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-dir * 110}%)` }], { duration: 620, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' }).onfinish = () => x.remove(); });
   };
   const rotulo = (i, dir, ya = false) => {
-    activo = i; const r = REVISTAS[i];
+    activo = i; const r = LISTA[i];
     cambia($('.ts-est__nombre'), titulo(r), dir, ya);
     cambia($('.ts-est__cuando'), cuando(r), dir, ya);
     cambia($('.ts-est__meta'), `${r.p ? t('Década de {d}', { d: r.d }) + ' · ' : ''}${pos(i)}`, dir, ya);
@@ -102,11 +103,14 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     {
       const k = quieto ? 1000 : arrastra ? 18 : 5.2;
       s += (T - s) * (1 - Math.exp(-k * dt)); if (Math.abs(T - s) < 0.0001) s = T;
-      if (Math.abs(s) > N * 4) { const c = Math.trunc(s / N) * N; s -= c; T -= c; }
+      if (!ciclo) T = Math.max(0, Math.min(N - 1, T));
+      if (ciclo && Math.abs(s) > N * 4) { const c = Math.trunc(s / N) * N; s -= c; T -= c; }
       const i = mod(Math.round(s), N); if (i !== activo) rotulo(i, Math.sign(T - s) || 1);
     }
     // qué lomos hacen falta (y reciclar los que salen)
-    const R = Math.ceil((W / 2 + d * 1.4) / (ws + gap)) + 2, v0 = Math.floor(s) - R, v1 = Math.ceil(s) + R;
+    const R = Math.ceil((W / 2 + d * 1.4) / (ws + gap)) + 2;
+    let v0 = Math.floor(s) - R, v1 = Math.ceil(s) + R;
+    if (!ciclo) { v0 = Math.max(v0, 0); v1 = Math.min(v1, N - 1); }
     for (const [v, o] of vivos) if (v < v0 || v > v1) { vivos.delete(v); o.lomo.style.visibility = o.tapa.style.visibility = 'hidden'; o.vl = o.vt = false; libres.push(o); }
     for (let v = v0; v <= v1; v++) if (!vivos.has(v)) { const o = libres.pop() || crea(); asigna(o, v); vivos.set(v, o); }
     const cerca = suave(1 - Math.abs(T - s) * 3);
@@ -117,7 +121,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     for (const [v, o] of vivos) {
       const r = v - s, x = F(r), op = suave(1 - Math.abs(r));
       if (Math.abs(x) > W / 2 + d * 1.6) { if (o.vl || o.vt) { o.lomo.style.visibility = o.tapa.style.visibility = 'hidden'; o.vl = o.vt = false; } continue; }
-      const rv = REVISTAS[o.i];
+      const rv = LISTA[o.i];
       if (!o.cargada && rv.i && Math.abs(r) < 3.5) { o.img.src = IMG(rv.i); o.cargada = true; }
       const meta = o === hover && Math.abs(r) > 0.5 ? 1 : 0; o.alza += (meta - o.alza) * (1 - Math.exp(-12 * dt));
       const y = -op * 0.025 * H - o.alza * 0.05 * H, z = op * 0.2 * H;
@@ -134,7 +138,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   }
 
   /* ---------- la portada (y el botón ▶) abren la página oficial de ese número en su web ---------- */
-  const abre = () => { T = Math.round(T); const r = REVISTAS[mod(Math.round(s), N)]; open(BASE + r.s + '/', '_blank', 'noopener'); };
+  const abre = () => { T = Math.round(T); const r = LISTA[mod(Math.round(s), N)]; open(BASE + r.s + '/', '_blank', 'noopener'); };
   abrir.addEventListener('click', abre);
 
   /* ---------- mandos: flechas, teclado, rueda horizontal y arrastre ---------- */
@@ -161,6 +165,20 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   balda.addEventListener('pointerup', suelta); balda.addEventListener('pointercancel', suelta);
   addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
   addEventListener('resize', () => { mide(); pestanas(); });
+
+  /* ---------- filtro por idioma (botones «Todos · ES · EN · IT · PT») ---------- */
+  const filtro = $('.ts-filtro[data-filtro="revistas"]');
+  filtro?.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    const L = b.dataset.idioma, nueva = L === 'todos' ? REVISTAS : REVISTAS.filter((r) => (r.g || 'es') === L);
+    if (!nueva.length) return;
+    filtro.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    LISTA = nueva; N = LISTA.length; ciclo = N > 40;
+    for (const [, o] of vivos) { o.lomo.style.visibility = o.tapa.style.visibility = 'hidden'; o.vl = o.vt = false; o.i = -1; libres.push(o); }
+    vivos.clear(); s = T = 0; activo = -1;
+    nav.querySelectorAll('.ts-est__pestana').forEach((x) => { x.hidden = !LISTA.some((r) => r.d === +x.dataset.dec); });
+    rotulo(0, 1, true);
+  });
 
   // al entrar en pantalla por primera vez, la estantería llega girando desde la derecha
   new IntersectionObserver(([e]) => {

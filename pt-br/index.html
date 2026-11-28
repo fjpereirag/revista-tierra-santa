@@ -92,9 +92,10 @@
   <div class="ts-contenedor ts-rejilla">
     <div class="ts-rejilla__principal">
       <h1 class="ts-titulo-linea ts-entra"><span data-palabras>Notícias</span><small class="ts-titulo-linea__nota" aria-hidden="true">Últimas · 27.11.2026</small></h1>
+      <div class="ts-filtro" data-filtro="noticias" role="group" aria-label="Filtrar por idioma"><button type="button" data-idioma="todos" aria-pressed="true">Todos <small>6</small></button><button type="button" data-idioma="es" aria-pressed="false" title="Español" lang="es">ES <small>6</small></button><button type="button" data-idioma="en" aria-pressed="false" title="English" lang="en" disabled>EN <small>0</small></button><button type="button" data-idioma="it" aria-pressed="false" title="Italiano" lang="it" disabled>IT <small>0</small></button><button type="button" data-idioma="pt" aria-pressed="false" title="Português" lang="pt-BR" disabled>PT <small>0</small></button></div><p class="ts-filtro__vacio" hidden>Não há notícias neste idioma.</p>
 
       <div class="ts-destacadas">
-        <article class="ts-noticia ts-entra" data-cursor="Ler">
+        <article class="ts-noticia ts-entra" data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/la-cena-las-pones-tu-2026/" target="_blank" rel="noopener">
             <div class="ts-noticia__foto ts-cortina"><img src="../img/noticias/la-cena-2x.jpg" alt="“O jantar é por sua conta 2026”" width="718" height="550" loading="lazy"></div>
             <p class="ts-fecha"><time datetime="2026-11-27">27 de novembro de 2026</time></p>
@@ -103,7 +104,7 @@
             <span class="ts-leer">Ler notícia <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
           </a>
         </article>
-        <article class="ts-noticia ts-entra" data-cursor="Ler">
+        <article class="ts-noticia ts-entra" data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/primera-piedra-de-la-capilla-argentina-en-el-campo-de-los-pastores/" target="_blank" rel="noopener">
             <div class="ts-noticia__foto ts-cortina"><img src="../img/noticias/capilla-argentina.jpg" alt="Pedra fundamental da capela argentina no Campo dos Pastores" width="1600" height="1067" loading="lazy"></div>
             <p class="ts-fecha"><time datetime="2026-11-23">23 de novembro de 2026</time></p>
@@ -115,28 +116,28 @@
       </div>
 
       <div class="ts-breves">
-        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler">
+        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/xiv-congreso-latinoamericano-de-comisarios-de-tierra-santa/" target="_blank" rel="noopener">
             <div class="ts-breve__foto"><img src="../img/noticias/congreso-comisarios.jpg" alt="" width="1280" height="960" loading="lazy"><i class="ts-brillo"></i></div>
             <h3 class="ts-breve__titulo">XIV Congresso Latino-Americano de Comissários e Vice-Comissários da Terra Santa</h3>
             <p class="ts-fecha ts-fecha--baja"><time datetime="2026-11-21">21 de novembro de 2026</time></p>
           </a>
         </article>
-        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler">
+        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/comienza-el-xiv-congreso-de-comisarios-en-paraguay/" target="_blank" rel="noopener">
             <div class="ts-breve__foto"><img src="../img/noticias/congreso-paraguay.jpg" alt="" width="1400" height="742" loading="lazy" style="object-position: 38% 50%"><i class="ts-brillo"></i></div>
             <h3 class="ts-breve__titulo">Começa no Paraguai o XIV Congresso de Comissários</h3>
             <p class="ts-fecha ts-fecha--baja"><time datetime="2026-11-15">15 de novembro de 2026</time></p>
           </a>
         </article>
-        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler">
+        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/misa-por-tierra-santa-en-la-basilica-del-monte-calvario-en-buenos-aires/" target="_blank" rel="noopener">
             <div class="ts-breve__foto"><img src="../img/noticias/misa-monte-calvario.jpg" alt="" width="1400" height="984" loading="lazy"><i class="ts-brillo"></i></div>
             <h3 class="ts-breve__titulo">Missa pela Terra Santa na basílica do Monte Calvário em Buenos Aires</h3>
             <p class="ts-fecha ts-fecha--baja"><time datetime="2026-11-15">15 de novembro de 2026</time></p>
           </a>
         </article>
-        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler">
+        <article class="ts-breve ts-entra" data-inclina data-cursor="Ler" data-idioma="es">
           <a href="https://revistatierrasanta.com/mesa-redonda-en-el-instituto-tierra-santa-de-buenos-aires/" target="_blank" rel="noopener">
             <div class="ts-breve__foto"><img src="../img/noticias/fray-luis-quintana.jpg" alt="" width="1392" height="928" loading="lazy"><i class="ts-brillo"></i></div>
             <h3 class="ts-breve__titulo">Frei Luis Quintana em Buenos Aires (Argentina)</h3>
@@ -237,6 +238,7 @@
     <h2 class="ts-est__titulo">Mais de cem anos,<br><em>número a número.</em></h2>
   </div>
   <p class="ts-est__cuenta">819 revistas · <span>1921 – 2025</span></p>
+  <div class="ts-filtro" data-filtro="revistas" role="group" aria-label="Filtrar por idioma"><button type="button" data-idioma="todos" aria-pressed="true">Todos <small>819</small></button><button type="button" data-idioma="es" aria-pressed="false" title="Español" lang="es">ES <small>819</small></button><button type="button" data-idioma="en" aria-pressed="false" title="English" lang="en" disabled>EN <small>0</small></button><button type="button" data-idioma="it" aria-pressed="false" title="Italiano" lang="it" disabled>IT <small>0</small></button><button type="button" data-idioma="pt" aria-pressed="false" title="Português" lang="pt-BR" disabled>PT <small>0</small></button></div>
   <nav class="ts-est__pestanas" aria-label="Décadas da hemeroteca"></nav>
   <div class="ts-est__balda" data-cursor="Arrastar" role="group" aria-roledescription="estante" aria-label="Estante de revistas: arraste ou use as setas"><div class="ts-est__escena"></div></div>
   <button class="ts-est__abrir" type="button" aria-label="Ver esta revista na página oficial (abre em outra aba)"><svg viewBox="0 0 12 14" aria-hidden="true"><path fill="currentColor" d="M1 1v12l10-6z"/></svg></button>

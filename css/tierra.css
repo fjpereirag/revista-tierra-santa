@@ -786,3 +786,19 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
 .ts-menu a { white-space: nowrap; }   /* «Quem somos», «Where we are»… en una línea */
 @media (max-width: 1180px) { .ts-cab__fila { gap: 18px; } .ts-idiomas a { padding: 6px 5px; } }
 @media (max-width: 1080px) { .ts-menu { gap: 16px; } .ts-menu a { font-size: 13px; } }
+
+/* ---------------------------------------------------------------- 28/11 · filtro por idioma (noticias y hemeroteca) */
+.ts-filtro { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 26px; }
+.ts-filtro button { white-space: nowrap; font: 600 12px/1 var(--ts-sans); letter-spacing: .06em; color: var(--ts-tinta); background: transparent; border: 1px solid rgba(20, 33, 49, .2); border-radius: 99px; padding: 8px 12px; cursor: pointer; transition: background-color .3s, color .3s, opacity .3s; }
+.ts-filtro button small { font-size: 10.5px; opacity: .6; margin-left: 2px; }
+.ts-filtro button:hover:not(:disabled) { border-color: var(--ts-tinta); }
+.ts-filtro button[aria-pressed="true"] { background: var(--ts-tinta); color: #fff; border-color: var(--ts-tinta); }
+.ts-filtro button:disabled { opacity: .35; cursor: default; }
+.ts-filtro__vacio { margin: 0 0 30px; color: var(--ts-oro); font-weight: 600; }
+.ts-destacadas > article[hidden], .ts-breves > article[hidden], .ts-filtro__vacio[hidden], .ts-est__pestana[hidden] { display: none !important; }
+.ts-est > .ts-filtro { position: absolute; z-index: 6; right: var(--ts-margen); top: calc(var(--ts-cab-alto) + 46px); margin: 0; justify-content: flex-end; max-width: 46%; }
+.ts-est > .ts-filtro button { padding: 6px 10px; font-size: 11px; }
+@media (max-width: 767px) {
+  .ts-est > .ts-filtro { right: auto; left: 50%; transform: translateX(-50%); top: calc(50% - var(--H) / 2 - 92px); max-width: calc(100% - 24px); flex-wrap: nowrap; justify-content: center; }
+  .ts-est > .ts-filtro button { padding: 6px 8px; }
+}
