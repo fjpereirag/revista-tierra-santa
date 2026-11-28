@@ -5,6 +5,7 @@
 import Lenis from '../vendor/lenis.mjs';
 import { iniciaRelieve } from './relieve.js';
 import { iniciaHemeroteca } from './hemeroteca.js';
+import { t } from './idioma.js';
 
 const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const tactil = matchMedia('(hover: none)').matches;
@@ -196,7 +197,7 @@ if ($('.ts-est')) iniciaHemeroteca($('.ts-est'), { quieto, lenis });
   const escena = $('.tsk', sec), vp = $('.tsk__vp', sec);
   const tarjetas = $$('.tsk__card', sec), n = tarjetas.length;
   const textos = $$('.ts-sus__lista li', sec), botones = $$('.ts-sus__selector button', sec), pista = $('.ts-sus__pista', sec);
-  if (pista && tactil) pista.textContent = 'Toca la tarjeta para darle la vuelta';
+  if (pista && tactil) pista.textContent = t('Toca la tarjeta para darle la vuelta');
   const estrecho = matchMedia('(max-width: 760px)');
 
   // cada tarjeta = dorso (billete del sorteo) + 3 capas de canto dorado + cara de socio + la revista flotando por delante
@@ -335,8 +336,8 @@ if ($('.ts-est')) iniciaHemeroteca($('.ts-est'), { quieto, lenis });
 $$('[data-copiar]').forEach((b) => b.addEventListener('click', async () => {
   const txt = b.dataset.copiar.replace(/\s/g, ''), et = $('span', b);
   try { await navigator.clipboard.writeText(txt); } catch { const t = document.createElement('textarea'); t.value = txt; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
-  b.classList.add('es-copiado'); et.textContent = 'IBAN copiado';
-  setTimeout(() => { b.classList.remove('es-copiado'); et.textContent = 'Copiar IBAN'; }, 2200);
+  b.classList.add('es-copiado'); et.textContent = t('IBAN copiado');
+  setTimeout(() => { b.classList.remove('es-copiado'); et.textContent = t('Copiar IBAN'); }, 2200);
 }));
 
 /* ---------------------------------------------------------------- formulario «Contacta con nosotros» (27/11)
@@ -351,14 +352,14 @@ $$('[data-copiar]').forEach((b) => b.addEventListener('click', async () => {
     $$('[aria-invalid]', f).forEach((el) => el.removeAttribute('aria-invalid'));
     const mal = (el, texto) => { el.setAttribute('aria-invalid', 'true'); el.focus(); aviso.className = 'ts-form__aviso'; aviso.textContent = texto; };
     const v = (n) => f[n].value.trim();
-    if (!v('nombre')) return mal(f.nombre, 'Escribe tu nombre.');
-    if (!f.email.checkValidity() || !v('email')) return mal(f.email, 'Escribe un email válido.');
-    if (v('email').toLowerCase() !== v('email2').toLowerCase()) return mal(f.email2, 'Los dos emails no coinciden.');
-    if (!v('asunto')) return mal(f.asunto, 'Escribe el asunto.');
-    if (!v('mensaje')) return mal(f.mensaje, 'Escribe tu mensaje.');
-    if (!f.consiento.checked) return mal(f.consiento, 'Debes aceptar el tratamiento de protección de datos.');
+    if (!v('nombre')) return mal(f.nombre, t('Escribe tu nombre.'));
+    if (!f.email.checkValidity() || !v('email')) return mal(f.email, t('Escribe un email válido.'));
+    if (v('email').toLowerCase() !== v('email2').toLowerCase()) return mal(f.email2, t('Los dos emails no coinciden.'));
+    if (!v('asunto')) return mal(f.asunto, t('Escribe el asunto.'));
+    if (!v('mensaje')) return mal(f.mensaje, t('Escribe tu mensaje.'));
+    if (!f.consiento.checked) return mal(f.consiento, t('Debes aceptar el tratamiento de protección de datos.'));
     const cuerpo = `${v('mensaje')}\n\n— ${[v('nombre'), v('apellidos')].filter(Boolean).join(' ')}\n${v('email')}`;
     location.href = `mailto:direccion@revistatierrasanta.com?subject=${encodeURIComponent(v('asunto'))}&body=${encodeURIComponent(cuerpo)}`;
-    aviso.className = 'ts-form__aviso es-ok'; aviso.textContent = 'Se ha abierto tu programa de correo con el mensaje. Solo falta pulsar «Enviar» allí.';
+    aviso.className = 'ts-form__aviso es-ok'; aviso.textContent = t('Se ha abierto tu programa de correo con el mensaje. Solo falta pulsar «Enviar» allí.');
   });
 })();

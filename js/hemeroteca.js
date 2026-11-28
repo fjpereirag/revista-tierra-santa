@@ -3,6 +3,8 @@
 // pestañas, rótulo que cambia), con los 819 números reales de su hemeroteca. Cada portada lleva a la página oficial de ese número.
 // Solo existen en la página los ~40 lomos que se ven: se reciclan al girar (con 819 no se pueden pintar todos).
 import { REVISTAS } from './hemeroteca-datos.js';
+import { t, meses } from './idioma.js';
+const IMG = (ruta) => new URL('../' + ruta, import.meta.url).href;   // las portadas, también desde en/, it/, pt-br/
 
 const N = REVISTAS.length;
 const DECADAS = [2020, 2010, 2000, 1990, 1980, 1970, 1960, 1950, 1940, 1930, 1920];
@@ -12,8 +14,8 @@ const mod = (n, m) => ((n % m) + m) % m;
 const limita = (x, a, b) => Math.max(a, Math.min(b, x));
 const suave = (x) => { x = limita(x, 0, 1); return x * x * (3 - 2 * x); };
 const pos = (i) => `${String(i + 1).padStart(3, '0')} / ${N}`;
-const titulo = (r) => `Revista nº ${r.l.replace(/-/g, '\u2011')}`;   // guion que no parte la línea (números dobles)
-const cuando = (r) => r.p || `Década de ${r.d}`;
+const titulo = (r) => t('Revista nº {n}', { n: r.l.replace(/-/g, '\u2011') });   // guion que no parte la línea (números dobles)
+const cuando = (r) => meses(r.p) || t('Década de {d}', { d: r.d });
 
 export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   const $ = (s) => sec.querySelector(s);
@@ -27,7 +29,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   const nav = $('.ts-est__pestanas');
   DECADAS.forEach((dec) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ts-est__pestana'; b.textContent = dec; b.dataset.dec = dec;
-    b.setAttribute('aria-label', `Década de ${dec}`);
+    b.setAttribute('aria-label', t('Década de {d}', { d: dec }));
     b.addEventListener('click', () => { const i = REVISTAS.findIndex((r) => r.d === dec); if (i >= 0) T = cercano(i); });
     nav.append(b);
   });
@@ -60,7 +62,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     o.v = v; const i = mod(v, N); if (o.i === i) return;
     o.i = i; const r = REVISTAS[i];
     o.lomo.style.setProperty('--c', r.c); o.tapa.style.setProperty('--c', r.c); o.lomo.classList.toggle('es-claro', !r.t);
-    o.num.textContent = r.l; o.diseno.textContent = `Nº ${r.l}`;
+    o.num.textContent = r.l; o.diseno.textContent = t('Nº {n}', { n: r.l });
     o.img.classList.remove('es-lista'); o.img.removeAttribute('src'); o.cargada = false;
     o.tapa.classList.toggle('sin-portada', !r.i);
   }
@@ -87,8 +89,8 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
     activo = i; const r = REVISTAS[i];
     cambia($('.ts-est__nombre'), titulo(r), dir, ya);
     cambia($('.ts-est__cuando'), cuando(r), dir, ya);
-    cambia($('.ts-est__meta'), `${r.p ? `Década de ${r.d} · ` : ''}${pos(i)}`, dir, ya);
-    const cta = $('.ts-est__leer'); cta.href = BASE + r.s + '/'; cta.setAttribute('aria-label', `Leer la ${titulo(r)} completa en su web (se abre en otra pestaña)`);
+    cambia($('.ts-est__meta'), `${r.p ? t('Década de {d}', { d: r.d }) + ' · ' : ''}${pos(i)}`, dir, ya);
+    const cta = $('.ts-est__leer'); cta.href = BASE + r.s + '/'; cta.setAttribute('aria-label', t('Leer la {t} completa en su web (se abre en otra pestaña)', { t: titulo(r) }));
     pestanas();
   };
 
@@ -116,7 +118,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
       const r = v - s, x = F(r), op = suave(1 - Math.abs(r));
       if (Math.abs(x) > W / 2 + d * 1.6) { if (o.vl || o.vt) { o.lomo.style.visibility = o.tapa.style.visibility = 'hidden'; o.vl = o.vt = false; } continue; }
       const rv = REVISTAS[o.i];
-      if (!o.cargada && rv.i && Math.abs(r) < 3.5) { o.img.src = rv.i; o.cargada = true; }
+      if (!o.cargada && rv.i && Math.abs(r) < 3.5) { o.img.src = IMG(rv.i); o.cargada = true; }
       const meta = o === hover && Math.abs(r) > 0.5 ? 1 : 0; o.alza += (meta - o.alza) * (1 - Math.exp(-12 * dt));
       const y = -op * 0.025 * H - o.alza * 0.05 * H, z = op * 0.2 * H;
       const giro = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,${z.toFixed(2)}px) rotateZ(${(-4.5 * op).toFixed(2)}deg) rotateX(${(tiltX * op).toFixed(2)}deg) rotateY(${(-90 * op + tiltY * op).toFixed(2)}deg)`;
@@ -128,7 +130,7 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
       if (o.vt !== verTapa) { o.vt = verTapa; o.tapa.style.visibility = verTapa ? 'visible' : 'hidden'; }
     }
     abrir.style.setProperty('--esc', cerca.toFixed(3));
-    balda.dataset.cursor = sobrePortada ? 'Ver revista' : 'Arrastrar';
+    balda.dataset.cursor = sobrePortada ? t('Ver revista') : t('Arrastrar');
   }
 
   /* ---------- la portada (y el botón ▶) abren la página oficial de ese número en su web ---------- */

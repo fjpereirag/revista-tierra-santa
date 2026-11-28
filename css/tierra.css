@@ -771,3 +771,18 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
   .ts-form__dos { grid-template-columns: 1fr; }
   .ts-form .ts-boton { justify-self: stretch; }
 }
+
+/* ---------------------------------------------------------------- 28/11 · selector de idioma (ES · EN · IT · PT) */
+.ts-idiomas { display: flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 600; letter-spacing: .08em; }
+.ts-idiomas a { padding: 6px 7px; border-radius: 99px; color: var(--ts-tinta); opacity: .55; transition: opacity .3s, background-color .3s; }
+.ts-idiomas a:hover { opacity: 1; }
+.ts-idiomas a[aria-current] { opacity: 1; background: rgba(20, 33, 49, .08); }
+.ts-idiomas--movil { gap: 6px; font-size: 15px; }
+.ts-idiomas--movil a { padding: 10px 14px; border: 1px solid rgba(20, 33, 49, .18); }
+.ts-cortinilla .ts-idiomas--movil { margin: 18px 0; }
+.ts-otro-idioma { font-style: italic; text-transform: none; letter-spacing: 0; opacity: .85; }
+@media (max-width: 960px) { .ts-cab__fila > .ts-idiomas { margin-left: auto; } .ts-hamb { margin-left: 0; } }
+@media (max-width: 560px) { .ts-cab__fila > .ts-idiomas { display: none; } .ts-hamb { margin-left: auto; } }
+.ts-menu a { white-space: nowrap; }   /* «Quem somos», «Where we are»… en una línea */
+@media (max-width: 1180px) { .ts-cab__fila { gap: 18px; } .ts-idiomas a { padding: 6px 5px; } }
+@media (max-width: 1080px) { .ts-menu { gap: 16px; } .ts-menu a { font-size: 13px; } }

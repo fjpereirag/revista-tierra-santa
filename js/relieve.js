@@ -59,7 +59,7 @@ export async function iniciaRelieve(seccion, { tactil = false, quieto = false } 
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
   if (!gl) return null;
   let img, prof;
-  try { [img, prof] = await Promise.all([carga(foto.currentSrc || foto.src), carga('img/marca/banner-jerusalen-prof.png')]); } catch { return null; }
+  try { [img, prof] = await Promise.all([carga(foto.currentSrc || foto.src), carga(new URL('../img/marca/banner-jerusalen-prof.png', import.meta.url).href)]); } catch { return null; }
 
   const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
   const pr = gl.createProgram();
