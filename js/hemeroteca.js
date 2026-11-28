@@ -9,7 +9,7 @@ const IMG = (ruta) => new URL('../' + ruta, import.meta.url).href;   // las port
 // Año de cada revista para la línea de tiempo. Si su nombre trae el año (71 números) se usa ese; si no, se calcula
 // entre puntos conocidos: mensual desde el nº 1 (enero 1921), pausa 1941–1945, bimestral después, y el primer número
 // de cada década según su propio filtro. Es solo para moverse: el rótulo marca «≈» cuando el año es calculado.
-const PUNTOS = [[1, 1921], [229, 1940], [234, 1946], [235, 1947], [253, 1950], [372, 1960], [491, 1970], [606, 1980],
+const PUNTOS = [[1, 1921], [229, 1940], [233, 1940], [234, 1946], [235, 1947], [253, 1950], [372, 1960], [491, 1970], [606, 1980],
   [682, 1990], [742, 2000], [802, 2010], [820, 2013], [862, 2020], [898, 2026]];
 const anioDe = (n) => {
   for (let k = 0; k < PUNTOS.length - 1; k++) {
@@ -52,7 +52,8 @@ export function iniciaHemeroteca(sec, { quieto = false, lenis = null } = {}) {
   const marcaVacios = () => { const hay = new Set(LISTA.map((r) => r.y)); anios.forEach((i) => i.classList.toggle('es-vacio', !hay.has(+i.dataset.y))); };
   marcaVacios();
   const ponMarca = (y, aprox) => {
-    marca.style.left = pct(y) + '%'; marca.querySelector('b').textContent = (aprox ? '≈ ' : '') + y;
+    const b = marca.querySelector('b'); marca.style.left = pct(y) + '%'; b.textContent = (aprox ? '≈ ' : '') + y;
+    b.style.transform = `translateX(${-Math.min(88, Math.max(12, pct(y)))}%)`;   // en los extremos no se sale de la pantalla
     linea.setAttribute('aria-valuenow', y); linea.setAttribute('aria-valuetext', (aprox ? '≈ ' : '') + y);
   };
   // la revista de ese año (la primera del año); si no hay, la del año más cercano

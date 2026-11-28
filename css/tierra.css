@@ -840,3 +840,15 @@ html.ts-con-cursor, html.ts-con-cursor a, html.ts-con-cursor button, html.ts-con
 }
 @media (max-width: 1220px) { .ts-linea__anio b { font-size: 9px; letter-spacing: 0; } }
 @media (max-width: 1400px) { .ts-linea__anio:first-child b { display: none; } }
+/* 28/11 · móvil: el título grande deja sitio a los botones de idioma y a la línea de tiempo; nada se monta */
+@media (max-width: 767px) {
+  .ts-est__intro .ts-est__titulo { display: none; }
+  .ts-est > .ts-filtro { top: max(calc(var(--ts-cab-alto) + 52px), calc(50% - var(--H) / 2 - 118px)); }
+  .ts-linea { top: max(calc(var(--ts-cab-alto) + 92px), calc(50% - var(--H) / 2 - 64px)); }
+}
+@media (max-width: 767px) {
+  .ts-est > .ts-filtro { top: max(calc(var(--ts-cab-alto) + 40px), calc(50% - var(--H) / 2 - 138px)); }
+  .ts-linea { top: max(calc(var(--ts-cab-alto) + 70px), calc(50% - var(--H) / 2 - 86px)); }
+}
+@media (max-width: 400px) { .ts-est > .ts-filtro { gap: 4px; } .ts-est > .ts-filtro button { padding: 5px 7px; font-size: 10px; } .ts-est > .ts-filtro button small { font-size: 9px; } }
+@media (max-width: 767px) and (min-height: 880px) { .ts-est__intro .ts-est__titulo { display: block; } }
